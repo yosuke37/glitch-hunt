@@ -69,17 +69,18 @@ The November 20 initial live scaling run completed four trials before HTTP 429 t
 
 ## Deploy
 
-The production demo at [glitch-hunt.vercel.app](https://glitch-hunt.vercel.app) serves the saved live replay and all four offline scenarios. The batch and worker endpoints enforce authentication. Hosted live jobs still require a database and production credential configuration. The initial CLI deployment succeeded, but connecting the GitHub repository for automatic deployment requires account-side access.
+The production app at [glitch-hunt.vercel.app](https://glitch-hunt.vercel.app) has a Neon Free-plan database and Vercel Queues delivery. A hosted five-job verification batch completed all four offline cases and a live two-call regression reproduction after its submitter exited. The batch and repair endpoints enforce authentication. Deployments currently use the Vercel CLI. Connecting the GitHub repository for automatic deployment still requires account-side access.
 
 Create a Vercel project from this repository, use the **Other** framework preset, and keep this project's root as the deployment root. The configuration serves `public/` and deploys the `api/` Node handlers.
 
-The saved replay and offline demo work immediately. Durable live batches additionally need a hosted PostgreSQL database, the environment variables above, the schema migration, and a worker:
+For a new installation, the saved replay and offline demo work immediately. Durable live batches need PostgreSQL, the environment variables above, the schema migration, and a worker:
 
 1. Set the hosted database URL in the deployment environment and run `npm.cmd run db:migrate` using that connection.
-2. Run `npm.cmd run worker` on a continuously running host connected to the same database and Gateway account.
-3. Alternatively, schedule authenticated requests to `GET /api/worker` using `Authorization: Bearer YOUR_CRON_SECRET`. Each invocation drains up to 20 jobs while PostgreSQL enforces the shared limits. Choose a schedule supported by the hosting plan. A single invocation does not continuously drain future arrivals.
+2. Production batch submission publishes one durable Vercel Queue message per job. The private consumer runs that job and acknowledges the message only when PostgreSQL records a terminal state. Deferred jobs retry with a delay determined by the shared controls.
+3. A daily repair schedule at 08:00 UTC calls `GET /api/worker` using `Authorization: Bearer YOUR_CRON_SECRET` to republish unfinished jobs. This repairs a crash between the PostgreSQL commit and queue publication. **Resume saved batch** also retries publication. Message IDs are deduplicated and PostgreSQL leases fence duplicate deliveries.
+4. For local development or an external host, `npm.cmd run worker` polls PostgreSQL directly.
 
-Vercel sign-in and a hosted PostgreSQL connection are required to activate that cloud path. A localhost database URL cannot be used from Vercel.
+The queue consumer has no public URL. Messages retain delivery eligibility for seven days. PostgreSQL retains jobs and replays beyond that window, and repair can publish a fresh message after expiry. Queue and function use count toward Vercel plan allowances.
 
 ## Operational boundaries
 
@@ -94,8 +95,10 @@ The model sees the synthetic game's map and tool results. Its API key and operat
 ```mermaid
 flowchart LR
   UI[Dashboard on Vercel] --> API[Authenticated batch API]
-  API --> PG[(PostgreSQL jobs and replays)]
-  W[Independent worker or scheduled function] --> PG
+  API --> PG[(Neon PostgreSQL jobs and replays)]
+  API --> Q[Vercel Queues]
+  Q --> W[Private cloud consumer]
+  W --> PG
   W --> G[Vercel AI Gateway]
   G --> T[Waypoint tool and game engine]
   T --> V[Deterministic verifier]

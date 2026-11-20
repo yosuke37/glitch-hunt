@@ -71,6 +71,15 @@ test("PostgreSQL queue handles concurrent workers, retries, fencing, and cancell
         assert.equal(await claim(), null);
         await cancel(live);
       });
+      await t.test("a targeted delivery claims only the requested job", async () => {
+        const id = await enqueue([input, input], 2, randomUUID());
+        const batch = await getBatch(id);
+        const selected = await claim(batch.jobs[1].id);
+        assert.equal(selected.id, batch.jobs[1].id);
+        await finish(selected, { outcome: "regression_found" });
+        assert.equal(await claim(batch.jobs[1].id), null);
+        await cancel(id);
+      });
     } finally {
       await closeDatabase();
       await admin.query(`DROP SCHEMA ${schema} CASCADE`);

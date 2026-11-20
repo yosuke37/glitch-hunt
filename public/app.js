@@ -323,6 +323,7 @@ $("resume").addEventListener("click", () => {
   $("trial-list").replaceChildren();
   trialButtons.length = 0;
   choose(undefined, -1);
+  batchRequest("PATCH").catch((error) => { $("status").textContent = error.message; });
   startPolling();
 });
 $("cancel").addEventListener("click", async () => {

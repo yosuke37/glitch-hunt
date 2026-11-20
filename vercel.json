@@ -2,5 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "outputDirectory": "public",
-  "functions": { "api/worker.js": { "maxDuration": 60 } }
+  "regions": ["iad1"],
+  "functions": {
+    "api/worker.js": { "maxDuration": 60 },
+    "api/consume.js": {
+      "maxDuration": 60,
+      "experimentalTriggers": [
+        { "type": "queue/v2beta", "topic": "glitch-hunt-trials", "retryAfterSeconds": 60 }
+      ]
+    }
+  },
+  "crons": [{ "path": "/api/worker", "schedule": "0 8 * * *" }]
 }

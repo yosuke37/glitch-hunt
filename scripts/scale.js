@@ -6,6 +6,21 @@ import { closeDatabase } from "../lib/db.js";
 import { scenarios } from "../public/game.js";
 
 const mode = process.argv.includes("--live") ? "live" : "offline";
+const cloud = process.argv.includes("--cloud");
+async function remote(method, id, body) {
+  const response = await fetch(`${process.env.HUNT_URL ?? "https://glitch-hunt.vercel.app"}/api/batches${id ? `?id=${id}` : ""}`, {
+    method, headers: { Authorization: `Bearer ${process.env.HUNT_RUN_TOKEN}`, "Content-Type": "application/json" },
+    ...(body && { body: JSON.stringify(body) }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error ?? `Batch HTTP ${response.status}`);
+  return result;
+}
+async function create(inputs, concurrency) {
+  const key = randomUUID();
+  return cloud ? (await remote("POST", null, { inputs, concurrency, requestKey: key })).id
+    : enqueue(inputs, concurrency, key);
+}
 const inputs = Array.from({ length: 20 }, (_, index) => ({
   mode, seed: index + 1, levelId: index % 3, scenario: scenarios[index % scenarios.length].id,
 }));
@@ -13,23 +28,25 @@ const report = {
   measuredAt: new Date().toISOString(), mode, trialsPerCohort: inputs.length,
   workload: inputs, model: mode === "live" ? process.env.HUNT_MODEL : "offline-bfs",
   costBasis: "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
-  environment: "Local PostgreSQL queue and independent Node worker. Model requests use Vercel AI Gateway.",
+  environment: cloud ? "Neon PostgreSQL and Vercel Queues cloud workers. Model requests use Vercel AI Gateway."
+    : "Local PostgreSQL queue and independent Node worker. Model requests use Vercel AI Gateway.",
   cohorts: [],
 };
 try {
   for (const concurrency of [1, 5, 20]) {
-    const id = await enqueue(inputs, concurrency, randomUUID());
+    const id = await create(inputs, concurrency);
     console.log(`Queued ${mode} cohort ${id} with ${concurrency} slots.`);
     const started = performance.now();
     let batch;
     do {
       if (performance.now() - started > 180_000) {
-        await cancel(id);
-        batch = await getBatch(id);
+        if (cloud) await remote("DELETE", id);
+        else await cancel(id);
+        batch = cloud ? await remote("GET", id) : await getBatch(id);
         break;
       }
-      await setTimeout(250);
-      batch = await getBatch(id);
+      await setTimeout(cloud ? 1500 : 250);
+      batch = cloud ? await remote("GET", id) : await getBatch(id);
     } while (batch.jobs.some((job) => ["queued", "running"].includes(job.status)));
     const durationSeconds = (performance.now() - started) / 1000;
     const completed = batch.jobs.filter((job) => job.result?.outcome !== "agent_incomplete" && job.status === "succeeded");
@@ -65,7 +82,7 @@ try {
     report.cohorts.push(cohort);
     console.log(`${concurrency} slots · ${completed.length}/20 complete · ${truePositives} verified findings · ${durationSeconds.toFixed(2)}s · estimated $${costUsd?.toFixed(4) ?? "unknown"}`);
     await mkdir(new URL("../output/", import.meta.url), { recursive: true });
-    await writeFile(new URL(`../output/benchmark-${mode}.json`, import.meta.url), JSON.stringify(report, null, 2));
+    await writeFile(new URL(`../output/benchmark-${mode}${cloud ? "-cloud" : ""}.json`, import.meta.url), JSON.stringify(report, null, 2));
   }
   // Publish aggregate metrics only. Full evidence stays in PostgreSQL and output/.
   const publicReport = { ...report, cohorts: report.cohorts.map(({ batch, ...cohort }) => cohort) };

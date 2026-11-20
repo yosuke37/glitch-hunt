@@ -1,6 +1,7 @@
 import { authorized } from "../lib/auth.js";
 import { validInput } from "../lib/execution.js";
 import { enqueue, getBatch, cancel } from "../lib/queue.js";
+import { dispatch } from "../lib/dispatch.js";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -18,7 +19,9 @@ export async function POST(request) {
   }
   try {
     const id = await enqueue(body.inputs, body.concurrency, body.requestKey);
-    return Response.json({ id }, { status: 202, headers: { "Cache-Control": "no-store" } });
+    let dispatchPending = false;
+    try { await dispatch(id); } catch { dispatchPending = true; }
+    return Response.json({ id, dispatchPending }, { status: 202, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const known = ["Queue is full.", "Request key was used for different inputs."].includes(error.message);
     return Response.json({ error: known ? error.message : "Could not save batch." }, { status: known ? 409 : 503 });
@@ -47,5 +50,16 @@ export async function DELETE(request) {
     return Response.json({ cancelled: true });
   } catch {
     return Response.json({ error: "Could not cancel batch." }, { status: 503 });
+  }
+}
+
+export async function PATCH(request) {
+  if (!authorized(request)) return Response.json({ error: "Operator token required." }, { status: 401 });
+  const id = new URL(request.url).searchParams.get("id");
+  if (!uuid.test(id)) return Response.json({ error: "Invalid batch ID." }, { status: 400 });
+  try {
+    return Response.json(await dispatch(id));
+  } catch {
+    return Response.json({ error: "Saved batch could not be dispatched. Try resuming again." }, { status: 503 });
   }
 }
