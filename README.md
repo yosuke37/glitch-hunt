@@ -1,5 +1,7 @@
 # Glitch Hunt
 
+[Open the live demo](https://glitch-hunt.vercel.app) · [Source on GitHub](https://github.com/yosuke37/glitch-hunt)
+
 Glitch Hunt uses an AI playtest agent to choose waypoints in a puzzle game, replays the resulting moves on two builds, and checks the resulting game state. The dashboard opens with a real saved live run, including the model's tool arguments, moves, observations, latency, and token usage.
 
 The agent chooses destinations. A deterministic pathfinder translates those choices into moves on the baseline and applies the same inputs to the candidate. An independent exhaustive search verifies whether a failed candidate replay represents an impossible completion state. These roles appear separately in the activity trace.
@@ -66,6 +68,8 @@ Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-liv
 The November 20 initial live scaling run completed four trials before HTTP 429 throttling, then exhausted the configured daily attempt cap through retries. The 20-slot cohort's remaining jobs were cancelled. That report captures this constraint and predates the shared cooldown fix. A benchmark against higher provider limits is still needed to measure unconstrained scaling.
 
 ## Deploy
+
+The production demo at [glitch-hunt.vercel.app](https://glitch-hunt.vercel.app) serves the saved live replay and all four offline scenarios. The batch and worker endpoints enforce authentication. Hosted live jobs still require a database and production credential configuration. The initial CLI deployment succeeded, but connecting the GitHub repository for automatic deployment requires account-side access.
 
 Create a Vercel project from this repository, use the **Other** framework preset, and keep this project's root as the deployment root. The configuration serves `public/` and deploys the `api/` Node handlers.
 
