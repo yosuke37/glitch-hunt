@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { setTimeout } from "node:timers/promises";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 import { POST } from "../api/hunt.js";
 import { makeGatewayProbe } from "../lib/gateway.js";
 import { offlineProbe, verify } from "../lib/hunt.js";
@@ -8,6 +9,15 @@ import { runBatch } from "../public/batch.js";
 import { levels, scenarios } from "../public/game.js";
 import { replay, start } from "../public/game.js";
 import { observe, describeAttempts } from "../lib/observation.js";
+
+test("the published live recording reproduces its saved game states", async () => {
+  const sample = JSON.parse(await readFile(new URL("../public/sample-run.json", import.meta.url), "utf8"));
+  const result = verify(levels[sample.levelId], sample.inputs, sample.seed, sample.scenario);
+  assert.deepEqual(sample.baseline, result.baseline);
+  assert.deepEqual(sample.candidate, result.candidate);
+  assert.equal(result.outcome, "regression_found");
+  assert.deepEqual(sample.trace.flatMap((entry) => entry.moves), sample.inputs);
+});
 
 test("observations distinguish walls, closed gates, and completed moves", () => {
   const level = { rows: ["#######", "#SP.GE#", "#######"] };

@@ -26,11 +26,13 @@ const inputs = Array.from({ length: 20 }, (_, index) => ({
 }));
 const report = {
   measuredAt: new Date().toISOString(), mode, trialsPerCohort: inputs.length,
+  cohortTimeoutSeconds: 180,
   workload: inputs, model: mode === "live" ? process.env.HUNT_MODEL : "offline-bfs",
   costBasis: "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
   environment: cloud ? "Neon PostgreSQL and Vercel Queues cloud workers. Model requests use Vercel AI Gateway."
     : "Local PostgreSQL queue and independent Node worker. Model requests use Vercel AI Gateway.",
   cohorts: [],
+  notes: "Cohorts run sequentially and share provider limits. Each cohort is cancelled after three minutes. Completed trials exclude failed, cancelled, and unfinished runs. Missed detections include unfinished bug trials. Cost is an estimate and can omit charges for interrupted requests.",
 };
 try {
   for (const concurrency of [1, 5, 20]) {
@@ -50,7 +52,7 @@ try {
     } while (batch.jobs.some((job) => ["queued", "running"].includes(job.status)));
     const durationSeconds = (performance.now() - started) / 1000;
     const completed = batch.jobs.filter((job) => job.result?.outcome !== "agent_incomplete" && job.status === "succeeded");
-    const times = batch.jobs.filter((job) => job.completed_at)
+    const times = completed.filter((job) => job.completed_at)
       .map((job) => new Date(job.completed_at) - new Date(batch.created_at)).sort((a, b) => a - b);
     let truePositives = 0, falseNegatives = 0, falsePositives = 0, trueNegatives = 0, incomplete = 0;
     for (const job of batch.jobs) {
@@ -72,7 +74,8 @@ try {
       id, concurrency, durationSeconds, completed: completed.length,
       completionRate: completed.length / inputs.length,
       trialsPerSecond: batch.jobs.length / durationSeconds,
-      p95CompletionMs: times[Math.ceil(times.length * 0.95) - 1],
+      completedPerSecond: completed.length / durationSeconds,
+      p95CompletionMs: times[Math.ceil(times.length * 0.95) - 1] ?? null,
       truePositives, falseNegatives, falsePositives, trueNegatives, incomplete,
       costUsd, costPerFindingUsd: costUsd === null || !truePositives ? null : costUsd / truePositives,
       usage, attempts: batch.attempts.length, batch,

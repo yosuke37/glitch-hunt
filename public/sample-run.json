@@ -1,9 +1,474 @@
 {
   "mode": "live",
   "seed": 1,
-  "levelId": 0,
-  "scenario": "gate_reset",
-  "gameVersion": "2",
+  "model": "openai/gpt-4.1-mini",
+  "trace": [
+    {
+      "call": 1,
+      "tool": "navigate_to",
+      "moves": [
+        "south",
+        "south",
+        "east"
+      ],
+      "baseline": {
+        "x": 2,
+        "y": 3,
+        "won": false,
+        "gateOpen": true
+      },
+      "feedback": {
+        "baseline": {
+          "x": 2,
+          "y": 3,
+          "won": false,
+          "nearby": [
+            {
+              "x": 2,
+              "y": 2,
+              "tile": "wall",
+              "blocked": true,
+              "direction": "north"
+            },
+            {
+              "x": 3,
+              "y": 3,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "east"
+            },
+            {
+              "x": 2,
+              "y": 4,
+              "tile": "wall",
+              "blocked": true,
+              "direction": "south"
+            },
+            {
+              "x": 1,
+              "y": 3,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "west"
+            }
+          ],
+          "attempts": [
+            {
+              "to": {
+                "x": 1,
+                "y": 2
+              },
+              "won": false,
+              "from": {
+                "x": 1,
+                "y": 1
+              },
+              "move": "south",
+              "outcome": "moved",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 1,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 1,
+                "y": 2
+              },
+              "move": "south",
+              "outcome": "moved",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 2,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 1,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            }
+          ],
+          "gateOpen": true
+        },
+        "candidate": {
+          "x": 2,
+          "y": 3,
+          "won": false,
+          "nearby": [
+            {
+              "x": 2,
+              "y": 2,
+              "tile": "wall",
+              "blocked": true,
+              "direction": "north"
+            },
+            {
+              "x": 3,
+              "y": 3,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "east"
+            },
+            {
+              "x": 2,
+              "y": 4,
+              "tile": "wall",
+              "blocked": true,
+              "direction": "south"
+            },
+            {
+              "x": 1,
+              "y": 3,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "west"
+            }
+          ],
+          "attempts": [
+            {
+              "to": {
+                "x": 1,
+                "y": 2
+              },
+              "won": false,
+              "from": {
+                "x": 1,
+                "y": 1
+              },
+              "move": "south",
+              "outcome": "moved",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 1,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 1,
+                "y": 2
+              },
+              "move": "south",
+              "outcome": "moved",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 2,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 1,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            }
+          ],
+          "gateOpen": true
+        },
+        "navigation": {
+          "target": {
+            "x": 2,
+            "y": 3
+          },
+          "reachable": true
+        },
+        "callsRemaining": 5,
+        "movesRemaining": 25
+      },
+      "frameEnd": 3,
+      "arguments": {
+        "x": 2,
+        "y": 3
+      },
+      "candidate": {
+        "x": 2,
+        "y": 3,
+        "won": false,
+        "gateOpen": true
+      },
+      "elapsedMs": 1379,
+      "frameStart": 0,
+      "inputTokens": 419,
+      "outputTokens": 10
+    },
+    {
+      "call": 2,
+      "tool": "navigate_to",
+      "moves": [
+        "east",
+        "east",
+        "east",
+        "east",
+        "east"
+      ],
+      "baseline": {
+        "x": 7,
+        "y": 3,
+        "won": true,
+        "gateOpen": true
+      },
+      "feedback": {
+        "baseline": {
+          "x": 7,
+          "y": 3,
+          "won": true,
+          "nearby": [
+            {
+              "x": 7,
+              "y": 2,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "north"
+            },
+            {
+              "x": 8,
+              "y": 3,
+              "tile": "wall",
+              "blocked": true,
+              "direction": "east"
+            },
+            {
+              "x": 7,
+              "y": 4,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "south"
+            },
+            {
+              "x": 6,
+              "y": 3,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "west"
+            }
+          ],
+          "attempts": [
+            {
+              "to": {
+                "x": 3,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 2,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            },
+            {
+              "to": {
+                "x": 4,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 3,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            },
+            {
+              "to": {
+                "x": 5,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 4,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            },
+            {
+              "to": {
+                "x": 6,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 5,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            },
+            {
+              "to": {
+                "x": 7,
+                "y": 3
+              },
+              "won": true,
+              "from": {
+                "x": 6,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": true
+            }
+          ],
+          "gateOpen": true
+        },
+        "candidate": {
+          "x": 4,
+          "y": 3,
+          "won": false,
+          "nearby": [
+            {
+              "x": 4,
+              "y": 2,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "north"
+            },
+            {
+              "x": 5,
+              "y": 3,
+              "tile": "gate",
+              "blocked": true,
+              "direction": "east"
+            },
+            {
+              "x": 4,
+              "y": 4,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "south"
+            },
+            {
+              "x": 3,
+              "y": 3,
+              "tile": "floor",
+              "blocked": false,
+              "direction": "west"
+            }
+          ],
+          "attempts": [
+            {
+              "to": {
+                "x": 3,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 2,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 4,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 3,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "moved",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 4,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 4,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "blocked_closed_gate",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 4,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 4,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "blocked_closed_gate",
+              "gateOpen": false
+            },
+            {
+              "to": {
+                "x": 4,
+                "y": 3
+              },
+              "won": false,
+              "from": {
+                "x": 4,
+                "y": 3
+              },
+              "move": "east",
+              "outcome": "blocked_closed_gate",
+              "gateOpen": false
+            }
+          ],
+          "gateOpen": false
+        },
+        "navigation": {
+          "target": {
+            "x": 7,
+            "y": 3
+          },
+          "reachable": true
+        },
+        "callsRemaining": 4,
+        "movesRemaining": 20
+      },
+      "frameEnd": 8,
+      "arguments": {
+        "x": 7,
+        "y": 3
+      },
+      "candidate": {
+        "x": 4,
+        "y": 3,
+        "won": false,
+        "gateOpen": false
+      },
+      "elapsedMs": 1010,
+      "frameStart": 3,
+      "inputTokens": 688,
+      "outputTokens": 10
+    }
+  ],
+  "usage": {
+    "modelCalls": 2,
+    "inputTokens": 1107,
+    "outputTokens": 20
+  },
   "inputs": [
     "south",
     "south",
@@ -14,590 +479,129 @@
     "east",
     "east"
   ],
+  "costUsd": 0.0004748,
+  "levelId": 0,
+  "outcome": "regression_found",
   "baseline": [
     {
       "x": 1,
       "y": 1,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 1,
       "y": 2,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 1,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 2,
       "y": 3,
-      "gateOpen": true,
-      "won": false
+      "won": false,
+      "gateOpen": true
     },
     {
       "x": 3,
       "y": 3,
-      "gateOpen": true,
-      "won": false
+      "won": false,
+      "gateOpen": true
     },
     {
       "x": 4,
       "y": 3,
-      "gateOpen": true,
-      "won": false
+      "won": false,
+      "gateOpen": true
     },
     {
       "x": 5,
       "y": 3,
-      "gateOpen": true,
-      "won": false
+      "won": false,
+      "gateOpen": true
     },
     {
       "x": 6,
       "y": 3,
-      "gateOpen": true,
-      "won": false
+      "won": false,
+      "gateOpen": true
     },
     {
       "x": 7,
       "y": 3,
-      "gateOpen": true,
-      "won": true
+      "won": true,
+      "gateOpen": true
     }
   ],
+  "scenario": "gate_reset",
+  "verified": true,
   "candidate": [
     {
       "x": 1,
       "y": 1,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 1,
       "y": 2,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 1,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 2,
       "y": 3,
-      "gateOpen": true,
-      "won": false
+      "won": false,
+      "gateOpen": true
     },
     {
       "x": 3,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 4,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 4,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 4,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     },
     {
       "x": 4,
       "y": 3,
-      "gateOpen": false,
-      "won": false
+      "won": false,
+      "gateOpen": false
     }
   ],
-  "verified": true,
-  "candidateHasPath": false,
-  "outcome": "regression_found",
-  "usage": {
-    "inputTokens": 1107,
-    "outputTokens": 20,
-    "modelCalls": 2
-  },
-  "trace": [
-    {
-      "call": 1,
-      "tool": "navigate_to",
-      "arguments": {
-        "x": 2,
-        "y": 3
-      },
-      "moves": [
-        "south",
-        "south",
-        "east"
-      ],
-      "frameStart": 0,
-      "frameEnd": 3,
-      "baseline": {
-        "x": 2,
-        "y": 3,
-        "gateOpen": true,
-        "won": false
-      },
-      "candidate": {
-        "x": 2,
-        "y": 3,
-        "gateOpen": true,
-        "won": false
-      },
-      "feedback": {
-        "baseline": {
-          "x": 2,
-          "y": 3,
-          "gateOpen": true,
-          "won": false,
-          "nearby": [
-            {
-              "direction": "north",
-              "x": 2,
-              "y": 2,
-              "tile": "wall",
-              "blocked": true
-            },
-            {
-              "direction": "east",
-              "x": 3,
-              "y": 3,
-              "tile": "floor",
-              "blocked": false
-            },
-            {
-              "direction": "south",
-              "x": 2,
-              "y": 4,
-              "tile": "wall",
-              "blocked": true
-            },
-            {
-              "direction": "west",
-              "x": 1,
-              "y": 3,
-              "tile": "floor",
-              "blocked": false
-            }
-          ],
-          "attempts": [
-            {
-              "move": "south",
-              "from": {
-                "x": 1,
-                "y": 1
-              },
-              "to": {
-                "x": 1,
-                "y": 2
-              },
-              "outcome": "moved",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "south",
-              "from": {
-                "x": 1,
-                "y": 2
-              },
-              "to": {
-                "x": 1,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 1,
-                "y": 3
-              },
-              "to": {
-                "x": 2,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": false
-            }
-          ]
-        },
-        "candidate": {
-          "x": 2,
-          "y": 3,
-          "gateOpen": true,
-          "won": false,
-          "nearby": [
-            {
-              "direction": "north",
-              "x": 2,
-              "y": 2,
-              "tile": "wall",
-              "blocked": true
-            },
-            {
-              "direction": "east",
-              "x": 3,
-              "y": 3,
-              "tile": "floor",
-              "blocked": false
-            },
-            {
-              "direction": "south",
-              "x": 2,
-              "y": 4,
-              "tile": "wall",
-              "blocked": true
-            },
-            {
-              "direction": "west",
-              "x": 1,
-              "y": 3,
-              "tile": "floor",
-              "blocked": false
-            }
-          ],
-          "attempts": [
-            {
-              "move": "south",
-              "from": {
-                "x": 1,
-                "y": 1
-              },
-              "to": {
-                "x": 1,
-                "y": 2
-              },
-              "outcome": "moved",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "south",
-              "from": {
-                "x": 1,
-                "y": 2
-              },
-              "to": {
-                "x": 1,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 1,
-                "y": 3
-              },
-              "to": {
-                "x": 2,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": false
-            }
-          ]
-        },
-        "movesRemaining": 25,
-        "callsRemaining": 5,
-        "navigation": {
-          "target": {
-            "x": 2,
-            "y": 3
-          },
-          "reachable": true
-        }
-      },
-      "elapsedMs": 795,
-      "inputTokens": 419,
-      "outputTokens": 10
-    },
-    {
-      "call": 2,
-      "tool": "navigate_to",
-      "arguments": {
-        "x": 7,
-        "y": 3
-      },
-      "moves": [
-        "east",
-        "east",
-        "east",
-        "east",
-        "east"
-      ],
-      "frameStart": 3,
-      "frameEnd": 8,
-      "baseline": {
-        "x": 7,
-        "y": 3,
-        "gateOpen": true,
-        "won": true
-      },
-      "candidate": {
-        "x": 4,
-        "y": 3,
-        "gateOpen": false,
-        "won": false
-      },
-      "feedback": {
-        "baseline": {
-          "x": 7,
-          "y": 3,
-          "gateOpen": true,
-          "won": true,
-          "nearby": [
-            {
-              "direction": "north",
-              "x": 7,
-              "y": 2,
-              "tile": "floor",
-              "blocked": false
-            },
-            {
-              "direction": "east",
-              "x": 8,
-              "y": 3,
-              "tile": "wall",
-              "blocked": true
-            },
-            {
-              "direction": "south",
-              "x": 7,
-              "y": 4,
-              "tile": "floor",
-              "blocked": false
-            },
-            {
-              "direction": "west",
-              "x": 6,
-              "y": 3,
-              "tile": "floor",
-              "blocked": false
-            }
-          ],
-          "attempts": [
-            {
-              "move": "east",
-              "from": {
-                "x": 2,
-                "y": 3
-              },
-              "to": {
-                "x": 3,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 3,
-                "y": 3
-              },
-              "to": {
-                "x": 4,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 4,
-                "y": 3
-              },
-              "to": {
-                "x": 5,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 5,
-                "y": 3
-              },
-              "to": {
-                "x": 6,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 6,
-                "y": 3
-              },
-              "to": {
-                "x": 7,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": true,
-              "won": true
-            }
-          ]
-        },
-        "candidate": {
-          "x": 4,
-          "y": 3,
-          "gateOpen": false,
-          "won": false,
-          "nearby": [
-            {
-              "direction": "north",
-              "x": 4,
-              "y": 2,
-              "tile": "floor",
-              "blocked": false
-            },
-            {
-              "direction": "east",
-              "x": 5,
-              "y": 3,
-              "tile": "gate",
-              "blocked": true
-            },
-            {
-              "direction": "south",
-              "x": 4,
-              "y": 4,
-              "tile": "floor",
-              "blocked": false
-            },
-            {
-              "direction": "west",
-              "x": 3,
-              "y": 3,
-              "tile": "floor",
-              "blocked": false
-            }
-          ],
-          "attempts": [
-            {
-              "move": "east",
-              "from": {
-                "x": 2,
-                "y": 3
-              },
-              "to": {
-                "x": 3,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 3,
-                "y": 3
-              },
-              "to": {
-                "x": 4,
-                "y": 3
-              },
-              "outcome": "moved",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 4,
-                "y": 3
-              },
-              "to": {
-                "x": 4,
-                "y": 3
-              },
-              "outcome": "blocked_closed_gate",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 4,
-                "y": 3
-              },
-              "to": {
-                "x": 4,
-                "y": 3
-              },
-              "outcome": "blocked_closed_gate",
-              "gateOpen": false,
-              "won": false
-            },
-            {
-              "move": "east",
-              "from": {
-                "x": 4,
-                "y": 3
-              },
-              "to": {
-                "x": 4,
-                "y": 3
-              },
-              "outcome": "blocked_closed_gate",
-              "gateOpen": false,
-              "won": false
-            }
-          ]
-        },
-        "movesRemaining": 20,
-        "callsRemaining": 4,
-        "navigation": {
-          "target": {
-            "x": 7,
-            "y": 3
-          },
-          "reachable": true
-        }
-      },
-      "elapsedMs": 608,
-      "inputTokens": 688,
-      "outputTokens": 10
-    }
-  ],
-  "model": "openai/gpt-4.1-mini",
+  "elapsedMs": 2399.550915,
   "stopReason": "baseline_completed",
-  "costUsd": 0.0004748,
-  "elapsedMs": 1402.9850000000001
+  "gameVersion": "2",
+  "candidateHasPath": false,
+  "recording": {
+    "environment": "Vercel + Neon",
+    "recordedAt": "2026-11-20T22:10:16.472Z"
+  }
 }

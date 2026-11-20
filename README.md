@@ -63,9 +63,13 @@ npm.cmd run scale -- --live
 
 The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the same 20 trials at 1, 5, and 20 slots. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`.
 
-Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json`. Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to completion, and estimated cost per finding. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
+Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json` (or `output/benchmark-live-cloud.json` for the hosted run). Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to successful completion, and estimated cost per finding. Cohorts share provider limits, and each is cancelled after three minutes. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
 
-The November 20 initial live scaling run completed four trials before HTTP 429 throttling, then exhausted the configured daily attempt cap through retries. The 20-slot cohort's remaining jobs were cancelled. That report captures this constraint and predates the shared cooldown fix. A benchmark against higher provider limits is still needed to measure unconstrained scaling.
+The first local live scaling run on November 20 completed four trials before HTTP 429 throttling and exhausted its daily attempt cap through retries. A subsequent hosted benchmark uses the shared cooldown fix and private Vercel consumers. A benchmark against higher provider limits is still needed to measure unconstrained scaling.
+
+The hosted run completed 12/20 trials at one slot, 7/20 at five slots, and 1/20 at twenty slots. It verified nine, six, and one planted regressions respectively. The report retains HTTP 429 errors, incomplete trials, and deadline cancellations. Higher concurrency encountered the shared provider limit sooner.
+
+To measure the deployed service with the same workload, use `npm.cmd run scale -- --live --cloud`. This uses the operator token from the local configuration and submits through the production batch API. It needs no local database or worker.
 
 ## Deploy
 

@@ -1,4 +1,4 @@
-import { levels, scenarios, start } from "./game.js";
+import { levels, scenarios, start, replay } from "./game.js";
 import { runBatch } from "./batch.js";
 
 const $ = (id) => document.getElementById(id);
@@ -63,8 +63,12 @@ function render() {
   $("counter").textContent = [frame, last].map((count) => String(count).padStart(2, "0")).join(" / ");
   $("move").textContent = frame ? `LAST INPUT · ${selected.inputs[frame - 1].toUpperCase()}` : "START POSITION";
   $("verdict").dataset.verified = selected?.verified ?? false;
-  $("verdict").textContent = selected ? outcomes[selected.outcome] ?? (selected.verified ? "Regression found" : "Agent couldn't finish") : "AWAITING RUN";
-  $("finding").textContent = selected?.verified
+  $("verdict").textContent = selected?.partial
+    ? `Saved attempt · ${selected.status}`
+    : selected ? outcomes[selected.outcome] ?? (selected.verified ? "Regression found" : "Agent couldn't finish") : "AWAITING RUN";
+  $("finding").textContent = selected?.partial
+    ? `Showing the last saved attempt. ${selected.error ?? "The job has not produced a final result."}`
+    : selected?.verified
     ? `The baseline reaches the exit. The candidate fails the replay, and an exhaustive search finds no route to completion. Update under test: ${scenarios.find((item) => item.id === selected.scenario)?.name ?? "Gate forgets pressure plate"}.`
     : selected?.outcome === "no_regression_found" ? "Both builds reached the exit on this trace. No regression was found in this trial."
     : selected ? "The agent did not complete a trace that establishes a result." : "Launch a hunt to collect a replay.";
@@ -107,6 +111,7 @@ function renderTrace() {
     call_limit: "Model call limit reached.",
     move_limit: "Move limit reached.",
     missing_tool_call: "Model did not return a usable tool call.",
+    saved_attempt: "Last saved attempt. A final result is pending or unavailable.",
   };
   $("trace-summary").textContent = [
     selected.model, `${selected.usage.modelCalls} model calls`,
@@ -286,6 +291,15 @@ async function pollBatch() {
       }
     }
     for (const [index, job] of batch.jobs.entries()) {
+      const attempt = batch.attempts.findLast((item) => item.job_id === job.id && item.progress);
+      const progress = attempt?.progress;
+      const preview = job.result ?? (progress && {
+        ...job.input, ...progress, partial: true, status: job.status, error: job.error,
+        baseline: replay(levels[job.input.levelId], progress.inputs, "baseline"),
+        candidate: replay(levels[job.input.levelId], progress.inputs, "candidate", job.input.scenario),
+        elapsedMs: progress.trace.reduce((sum, entry) => sum + entry.elapsedMs, 0),
+        stopReason: "saved_attempt",
+      });
       let button = trialButtons[index];
       if (!button) {
         button = element("button");
@@ -293,8 +307,8 @@ async function pollBatch() {
         $("trial-list").append(button);
       }
       button.textContent = `Seed ${job.input.seed} · ${job.result ? outcomes[job.result.outcome] : job.status}`;
-      button.disabled = !job.result;
-      button.onclick = () => choose(job.result, index);
+      button.disabled = !preview;
+      button.onclick = () => choose(preview, index);
       button.title = job.error ?? "";
       if (!selected && job.result) choose(job.result, index);
     }
@@ -337,7 +351,7 @@ $("sample").addEventListener("click", async () => {
     const sample = await response.json();
     $("metrics").replaceChildren();
     choose(sample, -1);
-    $("status").textContent = "Saved live run · replay at your own pace.";
+    $("status").textContent = `Saved live run${sample.recording ? ` · ${sample.recording.environment}` : ""} · replay at your own pace.`;
   } catch (error) { $("status").textContent = error.message; }
 });
 
@@ -354,8 +368,9 @@ async function loadBenchmark() {
       const row = element("tr");
       for (const value of [
         cohort.concurrency, `${cohort.completed}/${report.trialsPerCohort}`,
+        (cohort.completedPerSecond ?? cohort.completed / cohort.durationSeconds).toFixed(3),
         cohort.truePositives, `${cohort.falseNegatives} / ${cohort.falsePositives}`,
-        `${(cohort.p95CompletionMs / 1000).toFixed(2)}s`,
+        cohort.p95CompletionMs == null ? "—" : `${(cohort.p95CompletionMs / 1000).toFixed(2)}s`,
         cohort.costPerFindingUsd === null ? "—" : `$${cohort.costPerFindingUsd.toFixed(5)}`,
       ]) row.append(element("td", String(value)));
       $("benchmark-rows").append(row);
