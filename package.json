@@ -1,0 +1,23 @@
+{
+  "name": "glitch-hunt",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local scripts/dev.js",
+    "start": "node --env-file-if-exists=.env.local scripts/start.js",
+    "test": "node --test",
+    "live": "node --env-file-if-exists=.env.local scripts/live.js",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.js",
+    "test:db": "node --env-file-if-exists=.env.local scripts/check-database.js",
+    "worker": "node --env-file-if-exists=.env.local scripts/worker.js",
+    "scale": "node --env-file-if-exists=.env.local scripts/scale.js",
+    "bench": "node scripts/bench.js"
+  },
+  "dependencies": {
+    "pg": "8.23.1"
+  }
+}

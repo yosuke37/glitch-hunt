@@ -1,0 +1,301 @@
+{
+  "measuredAt": "2026-11-20T21:41:10.347Z",
+  "mode": "live",
+  "trialsPerCohort": 20,
+  "workload": [
+    {
+      "mode": "live",
+      "seed": 1,
+      "levelId": 0,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "live",
+      "seed": 2,
+      "levelId": 1,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "live",
+      "seed": 3,
+      "levelId": 2,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "live",
+      "seed": 4,
+      "levelId": 0,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "live",
+      "seed": 5,
+      "levelId": 1,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "live",
+      "seed": 6,
+      "levelId": 2,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "live",
+      "seed": 7,
+      "levelId": 0,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "live",
+      "seed": 8,
+      "levelId": 1,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "live",
+      "seed": 9,
+      "levelId": 2,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "live",
+      "seed": 10,
+      "levelId": 0,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "live",
+      "seed": 11,
+      "levelId": 1,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "live",
+      "seed": 12,
+      "levelId": 2,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "live",
+      "seed": 13,
+      "levelId": 0,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "live",
+      "seed": 14,
+      "levelId": 1,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "live",
+      "seed": 15,
+      "levelId": 2,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "live",
+      "seed": 16,
+      "levelId": 0,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "live",
+      "seed": 17,
+      "levelId": 1,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "live",
+      "seed": 18,
+      "levelId": 2,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "live",
+      "seed": 19,
+      "levelId": 0,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "live",
+      "seed": 20,
+      "levelId": 1,
+      "scenario": "exit_disabled"
+    }
+  ],
+  "model": "openai/gpt-4.1-mini",
+  "costBasis": "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
+  "environment": "Local PostgreSQL queue and independent Node worker. Model requests use Vercel AI Gateway.",
+  "cohorts": [
+    {
+      "id": "0b6f0e0f-e686-4806-9c84-057cd6adfae8",
+      "concurrency": 1,
+      "durationSeconds": 13.0949649,
+      "completed": 4,
+      "completionRate": 0.2,
+      "trialsPerSecond": 1.5273045901787792,
+      "p95CompletionMs": 12726,
+      "truePositives": 3,
+      "falseNegatives": 12,
+      "falsePositives": 0,
+      "trueNegatives": 1,
+      "incomplete": 16,
+      "costUsd": 0.0024792000000000004,
+      "costPerFindingUsd": 0.0008264000000000001,
+      "usage": {
+        "inputTokens": 5798,
+        "outputTokens": 100
+      },
+      "attempts": 36,
+      "errors": [
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429)."
+      ],
+      "cancelled": 0
+    },
+    {
+      "id": "bfaa50e8-6bf0-47ba-937a-dda7fb3c31b9",
+      "concurrency": 5,
+      "durationSeconds": 3.1246867999999997,
+      "completed": 0,
+      "completionRate": 0,
+      "trialsPerSecond": 6.400641497893486,
+      "p95CompletionMs": 2931,
+      "truePositives": 0,
+      "falseNegatives": 15,
+      "falsePositives": 0,
+      "trueNegatives": 0,
+      "incomplete": 20,
+      "costUsd": 0,
+      "costPerFindingUsd": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "attempts": 40,
+      "errors": [
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429)."
+      ],
+      "cancelled": 0
+    },
+    {
+      "id": "a7ff3389-39f0-4358-91c9-595eaca19c6a",
+      "concurrency": 20,
+      "durationSeconds": 89.1759726,
+      "completed": 0,
+      "completionRate": 0,
+      "trialsPerSecond": 0.22427565875519256,
+      "p95CompletionMs": 88930,
+      "truePositives": 0,
+      "falseNegatives": 15,
+      "falsePositives": 0,
+      "trueNegatives": 0,
+      "incomplete": 20,
+      "costUsd": 0,
+      "costPerFindingUsd": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "attempts": 24,
+      "errors": [
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429).",
+        "AI Gateway rejected the request (HTTP 429)."
+      ],
+      "cancelled": 16
+    }
+  ],
+  "notes": "Initial benchmark before shared 429 cooldown was added. Four jobs completed before Gateway throttling. Remaining jobs failed or were cancelled when the application daily attempt cap was reached. Missing provider charges on rejected requests are not included in the estimate. This run measures provider-limited behavior, not an unconstrained throughput ceiling."
+}

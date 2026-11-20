@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Run playtest agents against two game builds and replay the evidence.">
+  <title>Glitch Hunt · Replay Lab</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="top"><span class="brand"><span class="mark" aria-hidden="true">⌖</span> GLITCH<span class="accent">HUNT</span></span><span class="tag"><i></i> REPLAY LAB / 01</span></header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">PLAYTEST OPERATIONS <span>/</span> BUILD DIFF</p>
+      <h1>Find what <em>broke.</em></h1>
+      <p>Send scouts into a puzzle game. Replay the same moves across two builds and see where they diverge.</p>
+    </section>
+    <div class="workspace">
+      <aside class="panel controls">
+        <p class="eyebrow">01 / CONFIGURE</p>
+        <h2>Hunt setup</h2>
+        <form id="hunt">
+          <label>Level<select id="level"></select></label>
+          <label>Candidate update<select id="scenario"></select></label>
+          <label>Scout mode<select id="mode"><option value="offline">Offline search</option><option value="live">Live AI agent</option></select></label>
+          <label id="token-field" hidden>Operator token<input id="token" type="password" autocomplete="off"></label>
+          <div class="form-row">
+            <label>Trials<select id="trials"><option selected>1</option><option>5</option><option>10</option><option>20</option></select></label>
+            <label>Parallel slots<select id="parallel"><option>1</option><option selected>5</option><option>20</option></select></label>
+          </div>
+          <button class="primary" id="launch" type="submit">Launch hunt</button>
+        </form>
+        <div class="job-actions">
+          <button id="sample" type="button">Watch saved live run</button>
+          <button id="resume" type="button">Resume saved batch</button>
+          <button id="cancel" type="button" hidden>Cancel batch</button>
+        </div>
+        <p id="status" class="status" role="status">Ready to investigate.</p>
+        <p class="eyebrow trials-title">TRIALS</p>
+        <div id="trial-list" class="trial-list"></div>
+      </aside>
+      <section class="panel lab" aria-labelledby="replay-title">
+        <div class="lab-heading"><div><p class="eyebrow">02 / INVESTIGATE</p><h2 id="replay-title">Build comparison</h2></div><span class="tag" id="verdict">AWAITING RUN</span></div>
+        <div class="boards" id="boards"></div>
+        <div class="legend"><span><b class="dot player"></b> Scout</span><span><b class="dot plate"></b> Pressure plate</span><span><b class="dot gate"></b> Gate</span><span><b class="dot exit"></b> Exit</span></div>
+        <div class="transport">
+          <button id="play" type="button" disabled>▶ Play</button>
+          <button id="back" type="button" aria-label="Previous move" disabled>←</button>
+          <button id="next" type="button" aria-label="Next move" disabled>→</button>
+          <input type="range" id="timeline" aria-label="Replay position" min="0" max="0" value="0" disabled>
+          <span id="counter">00 / 00</span>
+        </div>
+        <p id="move" class="eyebrow move">START POSITION</p>
+        <p class="finding" id="finding" role="status">Launch a hunt to collect a replay.</p>
+        <div class="metrics" id="metrics"></div>
+        <p id="batch-info" class="status"></p>
+        <section class="activity" aria-labelledby="activity-title">
+          <h3 id="activity-title">Activity trace</h3>
+          <p id="trace-summary" class="status">Select a live trial to inspect its activity.</p>
+          <ol id="trace"></ol>
+        </section>
+      </section>
+    </div>
+    <section class="panel benchmark" aria-labelledby="benchmark-title">
+      <h2 id="benchmark-title">Measured agent scaling</h2>
+      <p id="benchmark-summary" class="status">Loading published measurements…</p>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Slots</th><th>Completed</th><th>Findings</th><th>Misses / false alarms</th><th>p95 completion</th><th>Est. cost / finding</th></tr></thead>
+        <tbody id="benchmark-rows"></tbody>
+      </table></div>
+    </section>
+  </main>
+</body>
+</html>
