@@ -35,11 +35,13 @@ function board(level, state, label, version) {
   const grid = element("div", "", "board");
   grid.setAttribute("aria-hidden", "true");
   const gateOpen = state.gateOpen && !(label === "CANDIDATE" && selected?.scenario === "gate_locked");
-  const classes = { "#": "wall", P: "plate", G: gateOpen ? "gate open" : "gate", E: "exit" };
+  const corridorBlocked = label === "CANDIDATE" && selected?.scenario === "corridor_blocked";
+  const classes = { "#": "wall", P: "plate", G: gateOpen ? "gate open" : "gate", E: "exit", X: corridorBlocked ? "wall" : "corridor" };
+  grid.style.gridTemplateColumns = `repeat(${level.rows[0].length}, minmax(0, 1fr))`;
   for (const [y, row] of level.rows.entries()) {
     for (const [x, tile] of [...row].entries()) {
       const player = state.x === x && state.y === y;
-      grid.append(element("div", player ? "◆" : "PGE".includes(tile) ? tile : "", `tile ${player ? "player" : classes[tile] ?? ""}`));
+      grid.append(element("div", player ? "◆" : "PGEX".includes(tile) ? tile : "", `tile ${player ? "player" : classes[tile] ?? ""}`));
     }
   }
   const detail = `(${state.x}, ${state.y}) · ${state.won ? "Exit reached" : gateOpen ? "Gate open" : "Gate shut"}`;
@@ -68,6 +70,8 @@ function render() {
     : selected ? outcomes[selected.outcome] ?? (selected.verified ? "Regression found" : "Agent couldn't finish") : "AWAITING RUN";
   $("finding").textContent = selected?.partial
     ? `Showing the last saved attempt. ${selected.error ?? "The job has not produced a final result."}`
+    : selected?.evidence?.reason === "route_budget_exceeded"
+    ? `The candidate is solvable but needs ${selected.evidence.candidateShortestMoves} moves. The baseline needs ${selected.evidence.baselineShortestMoves}, and this level allows ${selected.evidence.maxExtraMoves} extra moves. The route exceeds that budget.`
     : selected?.verified
     ? `The baseline reaches the exit. The candidate fails the replay, and an exhaustive search finds no route to completion. Update under test: ${scenarios.find((item) => item.id === selected.scenario)?.name ?? "Gate forgets pressure plate"}.`
     : selected?.outcome === "no_regression_found" ? "Both builds reached the exit on this trace. No regression was found in this trial."
@@ -285,9 +289,11 @@ async function pollBatch() {
     $("status").textContent = `${completed}/${batch.jobs.length} complete · ${batch.concurrency} slots`;
     if (batch.jobs.some((job) => job.status === "queued" && job.input.mode === "live")) {
       if (batch.control.live_attempts >= batch.control.daily_live_limit) {
-        $("status").textContent += " · Daily live attempt limit reached";
+        $("status").textContent += " · Daily live job limit reached";
       } else if (new Date(batch.control.model_cooldown_until).getTime() > Date.now()) {
         $("status").textContent += " · Waiting for Gateway rate limit cooldown";
+      } else if (new Date(batch.control.model_next_call_at).getTime() > Date.now()) {
+        $("status").textContent += " · Following the shared model request schedule";
       }
     }
     for (const [index, job] of batch.jobs.entries()) {
@@ -295,6 +301,7 @@ async function pollBatch() {
       const progress = attempt?.progress;
       const preview = job.result ?? (progress && {
         ...job.input, ...progress, partial: true, status: job.status, error: job.error,
+        usage: progress.totalUsage ?? progress.usage,
         baseline: replay(levels[job.input.levelId], progress.inputs, "baseline"),
         candidate: replay(levels[job.input.levelId], progress.inputs, "candidate", job.input.scenario),
         elapsedMs: progress.trace.reduce((sum, entry) => sum + entry.elapsedMs, 0),

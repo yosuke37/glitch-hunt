@@ -80,6 +80,25 @@ test("PostgreSQL queue handles concurrent workers, retries, fencing, and cancell
         assert.equal(await claim(batch.jobs[1].id), null);
         await cancel(id);
       });
+      await t.test("pacing deferrals retain checkpoints, job allowance, and the real-failure budget", async () => {
+        await database().query(`
+          UPDATE gh_control SET daily_live_limit=1,live_attempts=0,model_interval_ms=1000,
+            model_cooldown_until=now(),model_next_call_at=now()
+        `);
+        const id = await enqueue([{ ...input, mode: "live" }, { ...input, mode: "live" }], 2, randomUUID());
+        const first = await claim();
+        await checkpoint(first, { inputs: ["south"], usage: { modelCalls: 1 }, trace: [] });
+        await checkModelAccess();
+        await assert.rejects(checkModelAccess, (error) => error.deferred && error.retryAfterSeconds > 0);
+        await finish(first, null, "Waiting for schedule", 0, true);
+        const resumed = await claim(first.id);
+        assert.deepEqual(resumed.resume.inputs, ["south"]);
+        assert.equal(await claim(), null);
+        const row = (await database().query("SELECT failure_count FROM gh_jobs WHERE id=$1", [first.id])).rows[0];
+        assert.equal(row.failure_count, 0);
+        await finish(resumed, { outcome: "regression_found" });
+        await cancel(id);
+      });
     } finally {
       await closeDatabase();
       await admin.query(`DROP SCHEMA ${schema} CASCADE`);

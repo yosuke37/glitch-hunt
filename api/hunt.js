@@ -16,7 +16,7 @@ export async function POST(request) {
     return Response.json({ error: "Invalid level, seed, or mode." }, { status: 400 });
   }
 
-  const probe = (level, seed) => ({ inputs: offlineProbe(level, seed) });
+  const probe = (level, seed, _signal, scenario) => ({ inputs: offlineProbe(level, seed, scenario) });
   if (mode === "live") {
     if (!authorized(request)) {
       return Response.json({ error: "Live runs require the operator token." }, { status: 401 });

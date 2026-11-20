@@ -57,6 +57,7 @@ button:hover:not(:disabled) { border-color: var(--accent); }
 .plate { background: #6648a5; color: #f0e8ff; }
 .gate { background: #a75351; color: #fff; }
 .gate.open, .exit { background: #336d5a; color: #d6fff1; }
+.corridor { background: #384b62; color: #d7e3fa; }
 .player { background: var(--accent); color: #17230b; }
 .build p { color: var(--muted); font: 12px var(--mono); margin: 10px 0 0; }
 .legend { display: flex; gap: 12px; flex-wrap: wrap; margin: 11px 0; color: var(--muted); font-size: 11px; }

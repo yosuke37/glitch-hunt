@@ -3,10 +3,13 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import { enqueue, getBatch, cancel } from "../lib/queue.js";
 import { closeDatabase } from "../lib/db.js";
-import { scenarios } from "../public/game.js";
+import { scenarios, cases } from "../public/game.js";
 
 const mode = process.argv.includes("--live") ? "live" : "offline";
 const cloud = process.argv.includes("--cloud");
+const expanded = process.argv.includes("--expanded");
+const timeoutSeconds = Number(process.argv.find((arg) => arg.startsWith("--timeout-seconds="))?.split("=")[1] ?? 600);
+if (!Number.isInteger(timeoutSeconds) || timeoutSeconds < 30 || timeoutSeconds > 1800) throw new Error("Use a timeout of 30–1800 seconds.");
 async function remote(method, id, body) {
   const response = await fetch(`${process.env.HUNT_URL ?? "https://glitch-hunt.vercel.app"}/api/batches${id ? `?id=${id}` : ""}`, {
     method, headers: { Authorization: `Bearer ${process.env.HUNT_RUN_TOKEN}`, "Content-Type": "application/json" },
@@ -21,18 +24,21 @@ async function create(inputs, concurrency) {
   return cloud ? (await remote("POST", null, { inputs, concurrency, requestKey: key })).id
     : enqueue(inputs, concurrency, key);
 }
-const inputs = Array.from({ length: 20 }, (_, index) => ({
-  mode, seed: index + 1, levelId: index % 3, scenario: scenarios[index % scenarios.length].id,
+const inputs = expanded ? cases.map((item, index) => ({
+  mode, seed: index + 1, levelId: item.levelId, scenario: item.scenario,
+})) : Array.from({ length: 20 }, (_, index) => ({
+  mode, seed: index + 1, levelId: index % 3, scenario: scenarios[index % 4].id,
 }));
 const report = {
   measuredAt: new Date().toISOString(), mode, trialsPerCohort: inputs.length,
-  cohortTimeoutSeconds: 180,
+  cohortTimeoutSeconds: timeoutSeconds,
+  workloadVersion: expanded ? "expanded-25" : "original-20",
   workload: inputs, model: mode === "live" ? process.env.HUNT_MODEL : "offline-bfs",
   costBasis: "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
   environment: cloud ? "Neon PostgreSQL and Vercel Queues cloud workers. Model requests use Vercel AI Gateway."
     : "Local PostgreSQL queue and independent Node worker. Model requests use Vercel AI Gateway.",
   cohorts: [],
-  notes: "Cohorts run sequentially and share provider limits. Each cohort is cancelled after three minutes. Completed trials exclude failed, cancelled, and unfinished runs. Missed detections include unfinished bug trials. Cost is an estimate and can omit charges for interrupted requests.",
+  notes: `Cohorts run sequentially and share provider limits and the application request schedule. Each cohort has a ${timeoutSeconds}-second deadline. Completed trials exclude failed, cancelled, and unfinished runs. Misses include unfinished bug trials. Cost estimates can omit interrupted requests. Earlier results used a 180-second deadline.`,
 };
 try {
   for (const concurrency of [1, 5, 20]) {
@@ -41,7 +47,7 @@ try {
     const started = performance.now();
     let batch;
     do {
-      if (performance.now() - started > 180_000) {
+      if (performance.now() - started > timeoutSeconds * 1000) {
         if (cloud) await remote("DELETE", id);
         else await cancel(id);
         batch = cloud ? await remote("GET", id) : await getBatch(id);
@@ -56,7 +62,7 @@ try {
       .map((job) => new Date(job.completed_at) - new Date(batch.created_at)).sort((a, b) => a - b);
     let truePositives = 0, falseNegatives = 0, falsePositives = 0, trueNegatives = 0, incomplete = 0;
     for (const job of batch.jobs) {
-      const expected = scenarios.find((scenario) => scenario.id === job.input.scenario).expectedRegression;
+      const expected = cases.find((item) => item.levelId === job.input.levelId && item.scenario === job.input.scenario).expectedRegression;
       const outcome = job.result?.outcome;
       if (!outcome || outcome === "agent_incomplete") incomplete++;
       if (expected && outcome === "regression_found") truePositives++;
@@ -79,13 +85,14 @@ try {
       truePositives, falseNegatives, falsePositives, trueNegatives, incomplete,
       costUsd, costPerFindingUsd: costUsd === null || !truePositives ? null : costUsd / truePositives,
       usage, attempts: batch.attempts.length, batch,
+      requestSpacingMs: batch.control.model_interval_ms,
       errors: batch.attempts.filter((attempt) => attempt.error).map((attempt) => attempt.error),
       cancelled: batch.jobs.filter((job) => job.status === "cancelled").length,
     };
     report.cohorts.push(cohort);
-    console.log(`${concurrency} slots · ${completed.length}/20 complete · ${truePositives} verified findings · ${durationSeconds.toFixed(2)}s · estimated $${costUsd?.toFixed(4) ?? "unknown"}`);
+    console.log(`${concurrency} slots · ${completed.length}/${inputs.length} complete · ${truePositives} verified findings · ${durationSeconds.toFixed(2)}s · estimated $${costUsd?.toFixed(4) ?? "unknown"}`);
     await mkdir(new URL("../output/", import.meta.url), { recursive: true });
-    await writeFile(new URL(`../output/benchmark-${mode}${cloud ? "-cloud" : ""}.json`, import.meta.url), JSON.stringify(report, null, 2));
+    await writeFile(new URL(`../output/benchmark-${mode}${cloud ? "-cloud" : ""}${expanded ? "-expanded" : ""}.json`, import.meta.url), JSON.stringify(report, null, 2));
   }
   // Publish aggregate metrics only. Full evidence stays in PostgreSQL and output/.
   const publicReport = { ...report, cohorts: report.cohorts.map(({ batch, ...cohort }) => cohort) };

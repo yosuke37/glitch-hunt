@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS gh_control (
 );
 INSERT INTO gh_control (id) VALUES (1) ON CONFLICT DO NOTHING;
 ALTER TABLE gh_control ADD COLUMN IF NOT EXISTS model_cooldown_until timestamptz NOT NULL DEFAULT now();
+ALTER TABLE gh_control ADD COLUMN IF NOT EXISTS model_next_call_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE gh_control ADD COLUMN IF NOT EXISTS model_interval_ms integer NOT NULL DEFAULT 7500 CHECK (model_interval_ms BETWEEN 0 AND 60000);
 CREATE TABLE IF NOT EXISTS gh_batches (
   id uuid PRIMARY KEY,
   request_key uuid NOT NULL UNIQUE,
@@ -39,4 +41,12 @@ CREATE TABLE IF NOT EXISTS gh_attempts (
   error text
 );
 CREATE INDEX IF NOT EXISTS gh_jobs_ready ON gh_jobs (available_at) WHERE status = 'queued';
+ALTER TABLE gh_jobs ADD COLUMN IF NOT EXISTS failure_count integer NOT NULL DEFAULT 0;
+ALTER TABLE gh_jobs ADD COLUMN IF NOT EXISTS budget_charged_on date;
 CREATE INDEX IF NOT EXISTS gh_attempts_active ON gh_attempts (lease_until) WHERE status = 'running';
+UPDATE gh_jobs j SET budget_charged_on=(
+  SELECT max((a.started_at AT TIME ZONE 'UTC')::date) FROM gh_attempts a WHERE a.job_id=j.id
+) WHERE j.input->>'mode'='live' AND j.attempts>0 AND j.budget_charged_on IS NULL;
+UPDATE gh_control c SET live_attempts=(
+  SELECT count(*) FROM gh_jobs j WHERE j.input->>'mode'='live' AND j.budget_charged_on=c.budget_day
+) WHERE id=1;
