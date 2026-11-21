@@ -208,7 +208,11 @@ test("a deferred live attempt resumes from the checkpoint with separate attempt 
 });
 
 test("the agent can finish a healthy candidate through a different route", async () => {
-  const targets = [{ x: 6, y: 1 }, { x: 8, y: 2 }, { x: 8, y: 2, build: "candidate" }];
+  const targets = [
+    { waypoint: "pressure_plate", build: "baseline" },
+    { waypoint: "exit", build: "baseline" },
+    { waypoint: "exit", build: "candidate" },
+  ];
   let index = 0;
   const probe = makeGatewayProbe({
     apiKey: "fake", model: "fake",

@@ -125,14 +125,14 @@ function renderTrace() {
   for (const entry of selected.trace ?? []) {
     const item = element("li", "", "trace-entry");
     const button = element("button",
-      `Call ${entry.call} · ${entry.tool}${entry.arguments?.x !== undefined ? ` (${entry.arguments.x}, ${entry.arguments.y})` : ""} · ${entry.moves.join(" → ")}`);
+      `Call ${entry.call} · ${entry.tool}${entry.arguments?.waypoint ? ` (${entry.arguments.waypoint}, ${entry.arguments.build})` : entry.arguments?.x !== undefined ? ` (${entry.arguments.x}, ${entry.arguments.y})` : ""} · ${entry.moves.join(" → ")}`);
     button.type = "button";
     button.addEventListener("click", () => { pause(); seek(entry.frameEnd); });
     const describe = (state) => `(${state.x}, ${state.y}) · gate ${state.gateOpen ? "open" : "closed"} · ${state.won ? "exit reached" : "playing"}`;
     item.append(button,
       element("p", `Baseline ${describe(entry.baseline)}`),
       element("p", `Candidate ${describe(entry.candidate)}`),
-      element("small", `${entry.elapsedMs} ms · input tokens ${entry.inputTokens ?? "unreported"} · output tokens ${entry.outputTokens ?? "unreported"}`));
+      element("small", `${entry.elapsedMs} ms · scheduled wait ${entry.scheduledWaitMs ?? 0} ms · input tokens ${entry.inputTokens ?? "unreported"} · output tokens ${entry.outputTokens ?? "unreported"}`));
     if (entry.feedback) {
       const details = element("details");
       details.append(element("summary", "Move outcomes and nearby tiles"));

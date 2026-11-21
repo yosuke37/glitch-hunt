@@ -8,10 +8,10 @@ The agent chooses destinations. A deterministic pathfinder translates those choi
 
 ## Current capabilities
 
-- Three levels and four candidate updates, including a healthy build, a gate that forgets its state, a gate that stays locked, and an exit that never completes.
+- Five levels and five candidate updates with 25 labelled combinations. Two levels include solvable route changes. A level permits four extra moves, so a 14-move candidate route passes against a 10-move baseline while an 18-move candidate route violates the same budget.
 - Three outcomes, **Regression found**, **No regression found**, and **Agent couldn't finish**. A healthy result covers the observed trace.
 - PostgreSQL stores batches, jobs, replays, and per-attempt trace checkpoints. A worker continues after the browser closes, and a batch ID saved in the browser restores the results.
-- Leases, stale-worker fencing, two bounded attempts, cancellation, shared concurrency up to 20, a daily live-attempt cap, and a shared cooldown after Gateway HTTP 429 responses.
+- Leases, stale-worker fencing, two real-failure attempts, cancellation, shared concurrency up to 20, a daily live-job cap, request pacing, and a shared cooldown after Gateway HTTP 429 responses. Scheduling deferrals retain checkpoints and the real-failure budget.
 - Operator authentication for all batch operations and a separate secret for the hosted worker endpoint. Public visitors can watch the saved replay and run the bounded offline solver.
 - A reproducible scaling workload and published aggregate measurements at 1, 5, and 20 slots. The first live report includes provider throttling failures.
 
@@ -61,19 +61,19 @@ npm.cmd run scale
 npm.cmd run scale -- --live
 ```
 
-The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the same 20 trials at 1, 5, and 20 slots. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`.
+The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the original 20 trials at 1, 5, and 20 slots. Use `--expanded` to exercise all 25 labelled combinations. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`.
 
-Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json` (or `output/benchmark-live-cloud.json` for the hosted run). Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to successful completion, and estimated cost per finding. Cohorts share provider limits, and each is cancelled after three minutes. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
+Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json` (or `output/benchmark-live-cloud.json` for the hosted run). Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to successful completion, and estimated cost per finding. Cohorts share provider limits and request pacing. The runner defaults to a ten-minute deadline. Use `--timeout-seconds=180` to repeat the earlier three-minute deadline. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
 
 The first local live scaling run on November 20 completed four trials before HTTP 429 throttling and exhausted its daily attempt cap through retries. A subsequent hosted benchmark uses the shared cooldown fix and private Vercel consumers. A benchmark against higher provider limits is still needed to measure unconstrained scaling.
 
-The hosted run completed 12/20 trials at one slot, 7/20 at five slots, and 1/20 at twenty slots. It verified nine, six, and one planted regressions respectively. The report retains HTTP 429 errors, incomplete trials, and deadline cancellations. Higher concurrency encountered the shared provider limit sooner.
+The original hosted run completed 12/20 trials at one slot, 7/20 at five slots, and 1/20 at twenty slots. It verified nine, six, and one planted regressions respectively. The [earlier report](public/benchmark-before-pacing.json) retains HTTP 429 errors, incomplete trials, and deadline cancellations.
 
 To measure the deployed service with the same workload, use `npm.cmd run scale -- --live --cloud`. This uses the operator token from the local configuration and submits through the production batch API. It needs no local database or worker.
 
 ## Deploy
 
-The production app at [glitch-hunt.vercel.app](https://glitch-hunt.vercel.app) has a Neon Free-plan database and Vercel Queues delivery. A hosted five-job verification batch completed all four offline cases and a live two-call regression reproduction after its submitter exited. The batch and repair endpoints enforce authentication. Deployments currently use the Vercel CLI. Connecting the GitHub repository for automatic deployment still requires account-side access.
+The production app at [glitch-hunt.vercel.app](https://glitch-hunt.vercel.app) has a Neon Free-plan database and Vercel Queues delivery. A hosted five-job verification batch completed all four offline cases and a live two-call regression reproduction after its submitter exited. The batch and repair endpoints enforce authentication. GitHub is connected to the production branch, `codex/glitch-hunt`. Pushes trigger Vercel deployments and PostgreSQL CI checks.
 
 Create a Vercel project from this repository, use the **Other** framework preset, and keep this project's root as the deployment root. The configuration serves `public/` and deploys the `api/` Node handlers.
 
@@ -88,9 +88,9 @@ The queue consumer has no public URL. Messages retain delivery eligibility for s
 
 ## Operational boundaries
 
-Control values live in the singleton `gh_control` row. Defaults are 20 active attempts and 100 live attempts per UTC day. Every claimed live attempt consumes allowance, including retries. Cancellation aborts an active model request when the worker next checks the database. A provider may still charge a request already in flight.
+Control values live in the singleton `gh_control` row. Defaults are 20 active attempts, 100 live jobs per UTC day, and a 15,000 ms minimum interval between model calls across workers. A job consumes one allowance when first claimed that day. Pacing deferrals and retries reuse that allowance. Cancellation aborts an active model request when the worker next checks the database. A provider may still charge a request already in flight.
 
-Results are committed only by the worker that still owns the job's valid lease. A crashed attempt can be repeated after lease expiry. Model calls are therefore at least once, and their costs can recur on retries. Successful jobs have one saved result. Tool arguments and game state are checkpointed after every completed model call.
+Results are committed only by the worker that still owns the job's valid lease. A retried worker restores the saved game inputs, trace, and accumulated usage. It continues navigation from that state. Per-attempt usage is stored separately to avoid counting tokens twice. A crash before a response is checkpointed can still repeat that model request and its charge.
 
 The model sees the synthetic game's map and tool results. Its API key and operator token stay out of traces and saved samples. A sample result is a recording and is labelled as such.
 
