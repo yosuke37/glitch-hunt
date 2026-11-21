@@ -11,6 +11,8 @@ const files = new Map([
   ...["app.js", "batch.js", "game.js"].map((name) => [`/${name}`, [name, "text/javascript"]]),
   ["/sample-run.json", ["sample-run.json", "application/json"]],
   ["/benchmark.json", ["benchmark.json", "application/json"]],
+  ["/benchmark-reference.json", ["benchmark-reference.json", "application/json"]],
+  ["/demo.mp4", ["demo.mp4", "video/mp4"]],
 ]);
 const port = Number(process.env.PORT ?? 4317);
 const server = createServer(async (incoming, outgoing) => {

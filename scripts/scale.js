@@ -8,7 +8,7 @@ import { scenarios, cases } from "../public/game.js";
 const mode = process.argv.includes("--live") ? "live" : "offline";
 const cloud = process.argv.includes("--cloud");
 const expanded = process.argv.includes("--expanded");
-const timeoutSeconds = Number(process.argv.find((arg) => arg.startsWith("--timeout-seconds="))?.split("=")[1] ?? 600);
+const timeoutSeconds = Number(process.argv.find((arg) => arg.startsWith("--timeout-seconds="))?.split("=")[1] ?? 1200);
 if (!Number.isInteger(timeoutSeconds) || timeoutSeconds < 30 || timeoutSeconds > 1800) throw new Error("Use a timeout of 30–1800 seconds.");
 async function remote(method, id, body) {
   const response = await fetch(`${process.env.HUNT_URL ?? "https://glitch-hunt.vercel.app"}/api/batches${id ? `?id=${id}` : ""}`, {

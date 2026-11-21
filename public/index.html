@@ -34,6 +34,7 @@
         <div class="job-actions">
           <button id="sample" type="button">Watch saved live run</button>
           <button id="resume" type="button">Resume saved batch</button>
+          <a class="demo-link" href="/demo.mp4">Watch the 44-second walkthrough ↗</a>
           <button id="cancel" type="button" hidden>Cancel batch</button>
         </div>
         <p id="status" class="status" role="status">Ready to investigate.</p>
@@ -69,6 +70,14 @@
         <thead><tr><th>Slots</th><th>Completed</th><th>Completed/s</th><th>Findings</th><th>Misses / false alarms</th><th>p95 completion</th><th>Est. cost / finding</th></tr></thead>
         <tbody id="benchmark-rows"></tbody>
       </table></div>
+      <details>
+        <summary>Compare with the offline reference engine</summary>
+        <p id="reference-summary" class="status">Loading reference measurements…</p>
+        <div class="table-scroll"><table>
+          <thead><tr><th>Slots</th><th>Completed</th><th>Completed/s</th><th>Findings</th><th>Misses / false alarms</th><th>p95 completion</th><th>Model cost / finding</th></tr></thead>
+          <tbody id="reference-rows"></tbody>
+        </table></div>
+      </details>
     </section>
   </main>
 </body>

@@ -364,13 +364,14 @@ $("sample").addEventListener("click", async () => {
 
 render();
 $("sample").click();
-async function loadBenchmark() {
+async function loadBenchmark(file = "benchmark", prefix = "benchmark") {
   try {
-    const response = await fetch("/benchmark.json");
+    const response = await fetch(`/${file}.json`);
     if (!response.ok) throw new Error();
     const report = await response.json();
-    $("benchmark-summary").textContent =
-      `${report.model} · ${report.trialsPerCohort} identical trials per cohort · ${new Date(report.measuredAt).toLocaleDateString()}. ${report.environment} Cost uses estimated uncached list rates. Rate-limited and cancelled jobs count as incomplete. ${report.notes ?? ""}`;
+    $(`${prefix}-summary`).textContent = report.mode === "offline"
+      ? `Offline reference engine · ${report.trialsPerCohort} expanded cases per cohort · ${new Date(report.measuredAt).toLocaleDateString()}. Uses the hosted queue and workers, without model calls. Its workload differs from the 20-case live workload; this measures queue and game-engine performance.`
+      : `${report.model} · ${report.trialsPerCohort} identical trials per cohort · ${new Date(report.measuredAt).toLocaleDateString()}. ${report.environment} Cost uses estimated uncached list rates. Rate-limited and cancelled jobs count as incomplete. ${report.notes ?? ""}`;
     for (const cohort of report.cohorts) {
       const row = element("tr");
       for (const value of [
@@ -380,10 +381,11 @@ async function loadBenchmark() {
         cohort.p95CompletionMs == null ? "—" : `${(cohort.p95CompletionMs / 1000).toFixed(2)}s`,
         cohort.costPerFindingUsd === null ? "—" : `$${cohort.costPerFindingUsd.toFixed(5)}`,
       ]) row.append(element("td", String(value)));
-      $("benchmark-rows").append(row);
+      $(`${prefix}-rows`).append(row);
     }
   } catch {
-    $("benchmark-summary").textContent = "Measurements have not been published yet.";
+    $(`${prefix}-summary`).textContent = "Measurements have not been published yet.";
   }
 }
 loadBenchmark();
+loadBenchmark("benchmark-reference", "reference");

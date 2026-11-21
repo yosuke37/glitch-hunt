@@ -1,0 +1,240 @@
+{
+  "measuredAt": "2026-11-20T22:53:17.965Z",
+  "mode": "offline",
+  "trialsPerCohort": 25,
+  "cohortTimeoutSeconds": 600,
+  "workloadVersion": "expanded-25",
+  "workload": [
+    {
+      "mode": "offline",
+      "seed": 1,
+      "levelId": 0,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "offline",
+      "seed": 2,
+      "levelId": 0,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "offline",
+      "seed": 3,
+      "levelId": 0,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "offline",
+      "seed": 4,
+      "levelId": 0,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "offline",
+      "seed": 5,
+      "levelId": 0,
+      "scenario": "corridor_blocked"
+    },
+    {
+      "mode": "offline",
+      "seed": 6,
+      "levelId": 1,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "offline",
+      "seed": 7,
+      "levelId": 1,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "offline",
+      "seed": 8,
+      "levelId": 1,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "offline",
+      "seed": 9,
+      "levelId": 1,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "offline",
+      "seed": 10,
+      "levelId": 1,
+      "scenario": "corridor_blocked"
+    },
+    {
+      "mode": "offline",
+      "seed": 11,
+      "levelId": 2,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "offline",
+      "seed": 12,
+      "levelId": 2,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "offline",
+      "seed": 13,
+      "levelId": 2,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "offline",
+      "seed": 14,
+      "levelId": 2,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "offline",
+      "seed": 15,
+      "levelId": 2,
+      "scenario": "corridor_blocked"
+    },
+    {
+      "mode": "offline",
+      "seed": 16,
+      "levelId": 3,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "offline",
+      "seed": 17,
+      "levelId": 3,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "offline",
+      "seed": 18,
+      "levelId": 3,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "offline",
+      "seed": 19,
+      "levelId": 3,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "offline",
+      "seed": 20,
+      "levelId": 3,
+      "scenario": "corridor_blocked"
+    },
+    {
+      "mode": "offline",
+      "seed": 21,
+      "levelId": 4,
+      "scenario": "gate_reset"
+    },
+    {
+      "mode": "offline",
+      "seed": 22,
+      "levelId": 4,
+      "scenario": "healthy"
+    },
+    {
+      "mode": "offline",
+      "seed": 23,
+      "levelId": 4,
+      "scenario": "gate_locked"
+    },
+    {
+      "mode": "offline",
+      "seed": 24,
+      "levelId": 4,
+      "scenario": "exit_disabled"
+    },
+    {
+      "mode": "offline",
+      "seed": 25,
+      "levelId": 4,
+      "scenario": "corridor_blocked"
+    }
+  ],
+  "model": "offline-bfs",
+  "costBasis": "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
+  "environment": "Neon PostgreSQL and Vercel Queues cloud workers. Model requests use Vercel AI Gateway.",
+  "cohorts": [
+    {
+      "id": "5d0b3209-f8bb-458b-98fa-4fc3c39e352e",
+      "concurrency": 1,
+      "durationSeconds": 26.7047623,
+      "completed": 25,
+      "completionRate": 1,
+      "trialsPerSecond": 0.9361626109662096,
+      "completedPerSecond": 0.9361626109662096,
+      "p95CompletionMs": 26440,
+      "truePositives": 16,
+      "falseNegatives": 0,
+      "falsePositives": 0,
+      "trueNegatives": 9,
+      "incomplete": 0,
+      "costUsd": 0,
+      "costPerFindingUsd": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "attempts": 25,
+      "requestSpacingMs": 7500,
+      "errors": [],
+      "cancelled": 0
+    },
+    {
+      "id": "56ed27e6-239f-44ce-84ce-12588c62d6e2",
+      "concurrency": 5,
+      "durationSeconds": 14.038082700000002,
+      "completed": 25,
+      "completionRate": 1,
+      "trialsPerSecond": 1.7808699759262707,
+      "completedPerSecond": 1.7808699759262707,
+      "p95CompletionMs": 13436,
+      "truePositives": 16,
+      "falseNegatives": 0,
+      "falsePositives": 0,
+      "trueNegatives": 9,
+      "incomplete": 0,
+      "costUsd": 0,
+      "costPerFindingUsd": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "attempts": 25,
+      "requestSpacingMs": 7500,
+      "errors": [],
+      "cancelled": 0
+    },
+    {
+      "id": "461bc617-8df1-4965-8f0f-eb6b65e12a20",
+      "concurrency": 20,
+      "durationSeconds": 7.880533300000002,
+      "completed": 25,
+      "completionRate": 1,
+      "trialsPerSecond": 3.17237413361352,
+      "completedPerSecond": 3.17237413361352,
+      "p95CompletionMs": 988,
+      "truePositives": 16,
+      "falseNegatives": 0,
+      "falsePositives": 0,
+      "trueNegatives": 9,
+      "incomplete": 0,
+      "costUsd": 0,
+      "costPerFindingUsd": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "attempts": 25,
+      "requestSpacingMs": 7500,
+      "errors": [],
+      "cancelled": 0
+    }
+  ],
+  "notes": "Cohorts run sequentially and share provider limits and the application request schedule. Each cohort has a 600-second deadline. Completed trials exclude failed, cancelled, and unfinished runs. Misses include unfinished bug trials. Cost estimates can omit interrupted requests. Earlier results used a 180-second deadline."
+}

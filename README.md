@@ -2,6 +2,8 @@
 
 [Open the live demo](https://glitch-hunt.vercel.app) · [Source on GitHub](https://github.com/yosuke37/glitch-hunt)
 
+[Watch the 44-second walkthrough](https://glitch-hunt.vercel.app/demo.mp4). This captioned edit uses captured frames from the deployed dashboard. It shows a recorded live agent replay and two explicitly labelled offline reference checks; playback speed is not a model performance measurement.
+
 Glitch Hunt uses an AI playtest agent to choose waypoints in a puzzle game, replays the resulting moves on two builds, and checks the resulting game state. The dashboard opens with a real saved live run, including the model's tool arguments, moves, observations, latency, and token usage.
 
 The agent chooses destinations. A deterministic pathfinder translates those choices into moves on the baseline and applies the same inputs to the candidate. An independent exhaustive search verifies whether a failed candidate replay represents an impossible completion state. These roles appear separately in the activity trace.
@@ -61,9 +63,9 @@ npm.cmd run scale
 npm.cmd run scale -- --live
 ```
 
-The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the original 20 trials at 1, 5, and 20 slots. Use `--expanded` to exercise all 25 labelled combinations. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`.
+The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the original 20 trials at 1, 5, and 20 slots. Use `--expanded` to exercise all 25 labelled combinations. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`. Run `npm.cmd run validate:live` to repeat the three hosted live outcome checks.
 
-Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json` (or `output/benchmark-live-cloud.json` for the hosted run). Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to successful completion, and estimated cost per finding. Cohorts share provider limits and request pacing. The runner defaults to a ten-minute deadline. Use `--timeout-seconds=180` to repeat the earlier three-minute deadline. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
+Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json` (or `output/benchmark-live-cloud.json` for the hosted run). Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to successful completion, and estimated cost per finding. Cohorts share provider limits and request pacing. The runner defaults to a twenty-minute deadline. Use `--timeout-seconds=180` to repeat the earlier three-minute deadline. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
 
 The first local live scaling run on November 20 completed four trials before HTTP 429 throttling and exhausted its daily attempt cap through retries. A subsequent hosted benchmark uses the shared cooldown fix and private Vercel consumers. A benchmark against higher provider limits is still needed to measure unconstrained scaling.
 
@@ -94,7 +96,17 @@ Results are committed only by the worker that still owns the job's valid lease. 
 
 The model sees the synthetic game's map and tool results. Its API key and operator token stay out of traces and saved samples. A sample result is a recording and is labelled as such.
 
-## Architecture
+The hosted offline reference workload completed all 25 expanded cases at every concurrency: 26.70 seconds at one slot, 14.04 seconds at five, and 7.88 seconds at twenty. Each cohort found all 16 labelled regressions with no false alarms. The [reference report](public/benchmark-reference.json) measures queue and game-engine performance without model calls; its expanded workload differs from the live benchmark.
+
+## Engineering story
+
+The hard part was making model work observable and recoverable across short-lived cloud functions. Jobs persist before dispatch, leases fence duplicate deliveries, and checkpoints retain moves, tool observations, and separately accounted token usage. The model chooses semantic landmarks; a deterministic navigator executes moves, and a separate verifier decides whether the candidate violates the game's completion or route-length contract.
+
+The first scaling experiments exposed two different bottlenecks: a provider quota and repeated coordinate choices after resuming a job. The provider returned an explicit five-requests-per-minute limit for this team's GPT-4.1 mini route. A shared 15-second request interval leaves headroom below that limit. Named pressure-plate and exit tools reduce coordinate ambiguity. Three subsequent hosted live checks passed: an impossible completion regression, a healthy alternate route, and a solvable detour that violates its move allowance.
+
+Concurrency slots are worker capacity, not a promise of linear model throughput. All workers share the same provider allowance. Published reports retain incomplete outcomes and cost estimates so the limits are visible. This is an instrumented game testbed; adapting it to arbitrary browser games would require new observation and action adapters.
+
+## Architecture diagram
 
 ```mermaid
 flowchart LR

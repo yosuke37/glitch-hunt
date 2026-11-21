@@ -11,6 +11,7 @@
     "start": "node --env-file-if-exists=.env.local scripts/start.js",
     "test": "node --test",
     "live": "node --env-file-if-exists=.env.local scripts/live.js",
+    "validate:live": "node --env-file-if-exists=.env.local scripts/validate-live.js",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.js",
     "test:db": "node --env-file-if-exists=.env.local scripts/check-database.js",
     "worker": "node --env-file-if-exists=.env.local scripts/worker.js",
