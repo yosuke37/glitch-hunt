@@ -4,29 +4,31 @@ export const levels = [
   { name: "Service Tunnel", rows: ["#########", "#S...#..#", "###..#..#", "#..P.G.E#", "#....#..#", "#....#..#", "#########"] },
   { name: "Side Passage", maxExtraMoves: 4, rows: ["###########", "#S.X..P#..#", "#.####.#E.#", "#......G..#", "#.####.#..#", "#......#..#", "###########"] },
   { name: "Long Way Round", maxExtraMoves: 4, rows: ["###########", "#S.X..P#..#", "#.####.#E.#", "#.####.G..#", "#.####.#..#", "#......#..#", "###########"] },
+  { name: "Key Management", requiresKey: true, rows: ["#########", "#S.D.G.E#", "#.#.###.#", "#K#P#...#", "#########"] },
 ];
 
 export const moves = {
   north: [0, -1], east: [1, 0], south: [0, 1], west: [-1, 0],
 };
 
-export const gameVersion = "3";
+export const gameVersion = "4";
 export const scenarios = [
   { id: "gate_reset", name: "Gate forgets pressure plate", expectedRegression: true },
   { id: "healthy", name: "Healthy update", expectedRegression: false },
   { id: "gate_locked", name: "Gate stays locked", expectedRegression: true },
   { id: "exit_disabled", name: "Exit never completes", expectedRegression: true },
+  { id: "key_missing", name: "Key cannot be collected", expectedRegression: false },
   { id: "corridor_blocked", name: "Corridor becomes blocked", expectedRegression: false },
 ];
 
 export const cases = levels.flatMap((level, levelId) => scenarios.map((scenario) => ({
   id: `${levelId}/${scenario.id}`, levelId, scenario: scenario.id,
-  expectedRegression: scenario.id === "corridor_blocked" ? levelId === 4 : scenario.expectedRegression,
+  expectedRegression: scenario.id === "corridor_blocked" ? levelId === 4 : scenario.id === "key_missing" ? Boolean(level.requiresKey) : scenario.expectedRegression,
 })));
 
 export function start(level) {
   const y = level.rows.findIndex((row) => row.includes("S"));
-  return { x: level.rows[y].indexOf("S"), y, gateOpen: false, won: false };
+  return { x: level.rows[y].indexOf("S"), y, gateOpen: false, won: false, ...(level.requiresKey && { hasKey: false }) };
 }
 
 export function step(level, state, move, build, scenario = "gate_reset") {
@@ -35,11 +37,12 @@ export function step(level, state, move, build, scenario = "gate_reset") {
   const y = state.y + dy;
   const tile = level.rows[y]?.[x];
   const candidate = build === "candidate";
-  if (state.won || !tile || tile === "#" ||
+  if (state.won || !tile || tile === "#" || (tile === "D" && !state.hasKey) ||
       (candidate && scenario === "corridor_blocked" && tile === "X") ||
       (tile === "G" && (!state.gateOpen || (candidate && scenario === "gate_locked")))) return state;
   return {
     x, y,
+    ...(level.requiresKey && { hasKey: state.hasKey || (tile === "K" && !(candidate && scenario === "key_missing")) }),
     gateOpen: tile === "P" || ((!candidate || scenario !== "gate_reset") && state.gateOpen),
     won: tile === "E" && !(candidate && scenario === "exit_disabled"),
   };

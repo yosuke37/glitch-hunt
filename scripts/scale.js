@@ -27,7 +27,7 @@ async function create(inputs, concurrency) {
 const inputs = expanded ? cases.map((item, index) => ({
   mode, seed: index + 1, levelId: item.levelId, scenario: item.scenario,
 })) : Array.from({ length: 20 }, (_, index) => ({
-  mode, seed: index + 1, levelId: index % 3, scenario: scenarios[index % 4].id,
+  mode, seed: index + 1, levelId: index % 3, scenario: ["gate_reset", "healthy", "gate_locked", "exit_disabled"][index % 4],
 }));
 const report = {
   measuredAt: new Date().toISOString(), mode, trialsPerCohort: inputs.length,

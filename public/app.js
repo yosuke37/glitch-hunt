@@ -2,6 +2,9 @@ import { levels, scenarios, start, replay } from "./game.js";
 import { runBatch } from "./batch.js";
 
 const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const readOnly = params.has("run") || params.has("recording");
+let selectedJobId;
 let selected;
 let frame = 0;
 let timer;
@@ -36,16 +39,16 @@ function board(level, state, label, version) {
   grid.setAttribute("aria-hidden", "true");
   const gateOpen = state.gateOpen && !(label === "CANDIDATE" && selected?.scenario === "gate_locked");
   const corridorBlocked = label === "CANDIDATE" && selected?.scenario === "corridor_blocked";
-  const classes = { "#": "wall", P: "plate", G: gateOpen ? "gate open" : "gate", E: "exit", X: corridorBlocked ? "wall" : "corridor" };
+  const classes = { "#": "wall", P: "plate", G: gateOpen ? "gate open" : "gate", E: "exit", K: state.hasKey ? "" : "key", D: state.hasKey ? "door open" : "door", X: corridorBlocked ? "wall" : "corridor" };
   grid.style.gridTemplateColumns = `repeat(${level.rows[0].length}, minmax(0, 1fr))`;
   for (const [y, row] of level.rows.entries()) {
     for (const [x, tile] of [...row].entries()) {
       const player = state.x === x && state.y === y;
-      grid.append(element("div", player ? "◆" : "PGEX".includes(tile) ? tile : "", `tile ${player ? "player" : classes[tile] ?? ""}`));
+      grid.append(element("div", player ? "◆" : "PGEXKD".includes(tile) && !(tile === "K" && state.hasKey) ? tile : "", `tile ${player ? "player" : classes[tile] ?? ""}`));
     }
   }
   const detail = `(${state.x}, ${state.y}) · ${state.won ? "Exit reached" : gateOpen ? "Gate open" : "Gate shut"}`;
-  container.append(heading, grid, element("p", detail));
+  container.append(heading, grid, element("p", detail + (level.requiresKey ? state.hasKey ? " · Key collected" : " · Key needed" : "")));
   return container;
 }
 
@@ -89,7 +92,11 @@ function seek(position) {
   render();
 }
 
-function choose(result, index) {
+function choose(result, index, jobId) {
+  selectedJobId = jobId;
+  $("share").hidden = !jobId || readOnly;
+  $("unshare").hidden = !jobId || readOnly;
+  $("share-link").hidden = true;
   pause();
   selected = result;
   if (result) {
@@ -315,9 +322,9 @@ async function pollBatch() {
       }
       button.textContent = `Seed ${job.input.seed} · ${job.result ? outcomes[job.result.outcome] : job.status}`;
       button.disabled = !preview;
-      button.onclick = () => choose(preview, index);
+      button.onclick = () => choose(preview, index, job.result ? job.id : undefined);
       button.title = job.error ?? "";
-      if (!selected && job.result) choose(job.result, index);
+      if (!selected && job.result) choose(job.result, index, job.id);
     }
     const traces = batch.attempts.filter((attempt) => attempt.progress);
     const calls = traces.reduce((sum, attempt) => sum + (attempt.progress.usage?.modelCalls ?? 0), 0);
@@ -363,7 +370,8 @@ $("sample").addEventListener("click", async () => {
 });
 
 render();
-$("sample").click();
+if (!readOnly) $("sample").click();
+else loadSharedRun();
 async function loadBenchmark(file = "benchmark", prefix = "benchmark") {
   try {
     const response = await fetch(`/${file}.json`);
@@ -389,3 +397,35 @@ async function loadBenchmark(file = "benchmark", prefix = "benchmark") {
 }
 loadBenchmark();
 loadBenchmark("benchmark-reference", "reference");
+
+async function loadSharedRun() {
+  document.body.classList.add("read-only");
+  $("shared-info").hidden = false;
+  $("shared-summary").textContent = "Loading shared replay…";
+  try {
+    const url = params.has("run") ? `/api/runs?id=${encodeURIComponent(params.get("run"))}`
+      : params.get("recording") === "recovery" ? "/recovery-run.json" : null;
+    if (!url) throw new Error("Recording not found.");
+    const response = await fetch(url);
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error ?? "Replay unavailable.");
+    choose(result, -1);
+    $("shared-summary").textContent = `${levels[result.levelId].name} · ${outcomes[result.outcome]} · ${result.usage?.modelCalls ?? 0} model calls · estimated model cost ${result.costUsd == null ? "unreported" : `$${result.costUsd.toFixed(5)}`}. Read-only recording${result.completedAt ? ` · completed ${new Date(result.completedAt).toLocaleString()}` : ""}.`;
+    document.title = `${levels[result.levelId].name} replay · Glitch Hunt`;
+  } catch (error) { $("shared-summary").textContent = error.message; }
+}
+async function changeSharing(method) {
+  try {
+    const response = await fetch("/api/runs", { method,
+      headers: { Authorization: `Bearer ${$("token").value}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId: selectedJobId }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    $("status").textContent = data.shared ? "Replay published. This link is public." : "Replay unpublished. Its public link now returns not found.";
+    $("share-link").hidden = !data.shared;
+    if (data.shared) { $("share-link").href = `/?run=${data.id}`; $("share-link").textContent = "Open public replay"; }
+  } catch (error) { $("status").textContent = error.message; }
+}
+$("share").addEventListener("click", () => changeSharing("POST"));
+$("unshare").addEventListener("click", () => changeSharing("DELETE"));

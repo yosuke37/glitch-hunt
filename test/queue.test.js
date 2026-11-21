@@ -99,6 +99,31 @@ test("PostgreSQL queue handles concurrent workers, retries, fencing, and cancell
         await finish(resumed, { outcome: "regression_found" });
         await cancel(id);
       });
+      await t.test("public links opt in, remain stable, and revoke without exposing job inputs", async () => {
+        const { POST, GET, DELETE } = await import("../api/runs.js");
+        const { execute } = await import("../lib/execution.js");
+        const prior = process.env.HUNT_RUN_TOKEN;
+        process.env.HUNT_RUN_TOKEN = "test-operator";
+        try {
+          const batch = await enqueue([{ ...input, privateValue: "PRIVATE" }], 1, randomUUID());
+          const job = await claim();
+          const result = await execute(input);
+          await finish(job, result);
+          const request = () => new Request("http://localhost/api/runs", { method: "POST", headers: { Authorization: "Bearer test-operator", "Content-Type": "application/json" }, body: JSON.stringify({ jobId: job.id }) });
+          const published = await (await POST(request())).json();
+          assert.equal((await (await POST(request())).json()).id, published.id);
+          const publicRequest = () => new Request(`http://localhost/api/runs?id=${published.id}`);
+          const response = await GET(publicRequest());
+          assert.equal(response.status, 200);
+          assert.equal(JSON.stringify(await response.json()).includes("PRIVATE"), false);
+          assert.equal((await DELETE(request())).status, 200);
+          assert.equal((await GET(publicRequest())).status, 404);
+          assert.equal((await getBatch(batch)).jobs[0].status, "succeeded");
+        } finally {
+          if (prior === undefined) delete process.env.HUNT_RUN_TOKEN;
+          else process.env.HUNT_RUN_TOKEN = prior;
+        }
+      });
     } finally {
       await closeDatabase();
       await admin.query(`DROP SCHEMA ${schema} CASCADE`);

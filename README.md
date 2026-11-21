@@ -10,12 +10,22 @@ The agent chooses destinations. A deterministic pathfinder translates those choi
 
 ## Current capabilities
 
-- Five levels and five candidate updates with 25 labelled combinations. Two levels include solvable route changes. A level permits four extra moves, so a 14-move candidate route passes against a 10-move baseline while an 18-move candidate route violates the same budget.
+- Six levels and six candidate updates with 36 labelled combinations. Key Management requires a key before crossing a locked door; a broken pickup is a new regression case. Two levels include solvable route changes. A level permits four extra moves, so a 14-move candidate route passes against a 10-move baseline while an 18-move candidate route violates the same budget.
 - Three outcomes, **Regression found**, **No regression found**, and **Agent couldn't finish**. A healthy result covers the observed trace.
 - PostgreSQL stores batches, jobs, replays, and per-attempt trace checkpoints. A worker continues after the browser closes, and a batch ID saved in the browser restores the results.
 - Leases, stale-worker fencing, two real-failure attempts, cancellation, shared concurrency up to 20, a daily live-job cap, request pacing, and a shared cooldown after Gateway HTTP 429 responses. Scheduling deferrals retain checkpoints and the real-failure budget.
 - Operator authentication for all batch operations and a separate secret for the hosted worker endpoint. Public visitors can watch the saved replay and run the bounded offline solver.
 - A reproducible scaling workload and published aggregate measurements at 1, 5, and 20 slots. The first live report includes provider throttling failures.
+
+## Explore the portfolio
+
+Open the [engineering story](https://glitch-hunt.vercel.app/portfolio.html) for the architecture, interactive benchmark history, recovery evidence, résumé bullets, and a two-minute narrated tour. The tour uses an installed Windows synthetic voice and English captions over captured app frames. The [narration script](public/narration.json) is included.
+
+Completed durable jobs can be published from the dashboard after entering the operator token and resuming a saved batch. Select a result, then **Publish selected replay**. The public URL has the form `/?run=PUBLIC_ID`. Visitors can scrub the replay and inspect its trace and estimated cost. **Unpublish selected replay** revokes the public ID. Sharing is opt-in; public responses omit raw job inputs, provider errors, credentials, and worker attempt records. GET `/api/runs?id=PUBLIC_ID` is read-only, while POST and DELETE require the operator token.
+
+The [recovery evidence](public/recovery-evidence.json) and [recovered recording](https://glitch-hunt.vercel.app/?recording=recovery) come from an actual local worker termination with real Gateway requests. A disposable local database schema isolates the drill. Its first checkpoint retained two moves and one model call; a replacement completed the key level in 14 moves and three total model calls. The test accelerates the normal 90-second lease expiry. A duplicate delivery preserved the two-attempt count, and a cancelled job rejected heartbeat, checkpoint, and stale result writes. This does not simulate a production-region outage.
+
+Run `npm.cmd run recover:live` with a local PostgreSQL URL to repeat that bounded, paid drill. It writes new public evidence files only after assertions pass. Review the measured artifacts before publishing. For narration, capture the frames named in `public/narration.json` under ignored `output/video/`, run `./scripts/narrate.ps1`, then `python scripts/render-narrated.py`. Windows System.Speech and FFmpeg are required for that optional media workflow.
 
 ## Run locally
 
@@ -63,7 +73,7 @@ npm.cmd run scale
 npm.cmd run scale -- --live
 ```
 
-The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the original 20 trials at 1, 5, and 20 slots. Use `--expanded` to exercise all 25 labelled combinations. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`. Run `npm.cmd run validate:live` to repeat the three hosted live outcome checks.
+The database test creates and removes its own temporary schema. CI runs it against a disposable PostgreSQL service. The scale command needs an independent worker running. Each cohort submits the original 20 trials at 1, 5, and 20 slots. Use `--expanded` to exercise all 36 current labelled combinations. Published reference measurements retain their original 25-case workload. Live measurements make paid API requests. The direct single-trial development command is `npm.cmd run live`. Run `npm.cmd run validate:live` to repeat the three hosted live outcome checks.
 
 Full benchmark evidence is saved in PostgreSQL and ignored `output/benchmark-live.json` (or `output/benchmark-live-cloud.json` for the hosted run). Public aggregate results are in [public/benchmark.json](public/benchmark.json) and the dashboard. They include completion, findings, missed detections, false alarms, p95 time from batch submission to successful completion, and estimated cost per finding. Cohorts share provider limits and request pacing. The runner defaults to a twenty-minute deadline. Use `--timeout-seconds=180` to repeat the earlier three-minute deadline. The estimate uses uncached GPT-4.1 mini list rates of $0.40/M input tokens and $1.60/M output tokens. Actual charges belong to the Gateway billing dashboard.
 

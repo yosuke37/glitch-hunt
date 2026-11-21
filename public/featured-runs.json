@@ -1,0 +1,14 @@
+[
+  {
+    "label": "Verified gate regression",
+    "id": "4c4577df-78b5-44af-a34f-a33e0493f4c0"
+  },
+  {
+    "label": "Healthy build",
+    "id": "c540431d-0f67-4f87-bc67-c0e4a7868db3"
+  },
+  {
+    "label": "Healthy alternate route",
+    "id": "024438cc-9be6-4c7d-9a10-1e2d35fd070e"
+  }
+]

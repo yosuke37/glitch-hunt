@@ -1,0 +1,62 @@
+{
+  "measuredAt": "2026-11-21T05:43:45.751Z",
+  "environment": "Local PostgreSQL and real Vercel AI Gateway model; disposable test schema",
+  "model": "openai/gpt-4.1-mini",
+  "method": "Terminate a real worker after its first move checkpoint, accelerate its 90-second lease expiry in isolation, then resume in another process. Cancellation and duplicate delivery exercise the same production queue functions.",
+  "events": [
+    {
+      "at": "2026-11-21T05:43:15.293Z",
+      "name": "checkpoint_persisted",
+      "detail": {
+        "moves": 2,
+        "modelCalls": 1
+      }
+    },
+    {
+      "at": "2026-11-21T05:43:15.300Z",
+      "name": "worker_process_terminated",
+      "detail": {
+        "method": "OS process termination after persisted moves"
+      }
+    },
+    {
+      "at": "2026-11-21T05:43:15.301Z",
+      "name": "lease_expiry_accelerated",
+      "detail": {
+        "normalLeaseSeconds": 90,
+        "isolatedTestSchema": true
+      }
+    },
+    {
+      "at": "2026-11-21T05:43:45.739Z",
+      "name": "checkpoint_resumed",
+      "detail": {
+        "retainedMoves": 2,
+        "totalMoves": 14,
+        "modelCalls": 3,
+        "outcome": "no_regression_found"
+      }
+    },
+    {
+      "at": "2026-11-21T05:43:45.742Z",
+      "name": "duplicate_delivery_ignored",
+      "detail": {
+        "attemptsBefore": 2,
+        "attemptsAfter": 2
+      }
+    },
+    {
+      "at": "2026-11-21T05:43:45.751Z",
+      "name": "cancelled_worker_fenced",
+      "detail": {
+        "heartbeatAccepted": false,
+        "checkpointAccepted": false,
+        "staleResultAccepted": false
+      }
+    }
+  ],
+  "passed": true,
+  "modelCalls": 3,
+  "costUsd": 0.0009432,
+  "attempts": 2
+}

@@ -12,13 +12,17 @@ async function api(method, id, body) {
   if (!response.ok) throw new Error(result.error ?? `HTTP ${response.status}`);
   return result;
 }
-const inputs = [
+const keyCases = process.argv.includes("--keys");
+const inputs = keyCases ? [
+  { mode: "live", seed: 1, levelId: 5, scenario: "healthy" },
+  { mode: "live", seed: 2, levelId: 5, scenario: "key_missing" },
+] : [
   { mode: "live", seed: 1, levelId: 0, scenario: "gate_reset" },
   { mode: "live", seed: 2, levelId: 3, scenario: "corridor_blocked" },
   { mode: "live", seed: 3, levelId: 4, scenario: "corridor_blocked" },
 ];
 const { id } = await api("POST", null, { inputs, concurrency: 1, requestKey: randomUUID() });
-console.log(`Validating three live cases: ${id}`);
+console.log(`Validating live cases: ${id}`);
 let batch;
 try {
   const deadline = Date.now() + 300_000;
@@ -28,8 +32,8 @@ try {
     if (Date.now() > deadline) throw new Error("Live validation exceeded five minutes.");
   } while (batch.jobs.some((job) => ["queued", "running"].includes(job.status)));
   await mkdir(new URL("../output/", import.meta.url), { recursive: true });
-  await writeFile(new URL("../output/semantic-live-validation.json", import.meta.url), JSON.stringify(batch, null, 2));
-  const expected = ["regression_found", "no_regression_found", "regression_found"];
+  await writeFile(new URL(keyCases ? "../output/key-live-validation.json" : "../output/semantic-live-validation.json", import.meta.url), JSON.stringify(batch, null, 2));
+  const expected = keyCases ? ["no_regression_found", "regression_found"] : ["regression_found", "no_regression_found", "regression_found"];
   for (const [index, job] of batch.jobs.entries()) {
     console.log(`${job.input.levelId}: ${job.status} / ${job.result?.outcome} / ${job.result?.usage?.modelCalls ?? 0} calls`);
     if (job.status !== "succeeded" || job.result.outcome !== expected[index]) throw new Error("Live outcome did not match its labelled case.");

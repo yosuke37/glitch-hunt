@@ -9,13 +9,14 @@
   <script type="module" src="/app.js"></script>
 </head>
 <body>
-  <header class="top"><span class="brand"><span class="mark" aria-hidden="true">⌖</span> GLITCH<span class="accent">HUNT</span></span><span class="tag"><i></i> REPLAY LAB / 01</span></header>
+  <header class="top"><span class="brand"><span class="mark" aria-hidden="true">⌖</span> GLITCH<span class="accent">HUNT</span></span><span class="tag"><i></i> REPLAY LAB / 01</span><a href="/portfolio.html">Engineering story &amp; evidence</a></header>
   <main>
     <section class="intro">
       <p class="eyebrow">PLAYTEST OPERATIONS <span>/</span> BUILD DIFF</p>
       <h1>Find what <em>broke.</em></h1>
       <p>Send scouts into a puzzle game. Replay the same moves across two builds and see where they diverge.</p>
     </section>
+    <section class="panel" id="shared-info" hidden><h2>Shared playtest replay</h2><p id="shared-summary"></p><a href="/">Explore Glitch Hunt</a></section>
     <div class="workspace">
       <aside class="panel controls">
         <p class="eyebrow">01 / CONFIGURE</p>
@@ -34,9 +35,12 @@
         <div class="job-actions">
           <button id="sample" type="button">Watch saved live run</button>
           <button id="resume" type="button">Resume saved batch</button>
-          <a class="demo-link" href="/demo.mp4">Watch the 44-second walkthrough ↗</a>
+          <a class="demo-link" href="/demo.mp4">Watch the 44-second walkthrough</a>
           <button id="cancel" type="button" hidden>Cancel batch</button>
         </div>
+        <button id="share" type="button" hidden>Publish selected replay</button>
+        <button id="unshare" type="button" hidden>Unpublish selected replay</button>
+        <a id="share-link" class="demo-link" hidden></a>
         <p id="status" class="status" role="status">Ready to investigate.</p>
         <p class="eyebrow trials-title">TRIALS</p>
         <div id="trial-list" class="trial-list"></div>

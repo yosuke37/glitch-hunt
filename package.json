@@ -16,7 +16,8 @@
     "test:db": "node --env-file-if-exists=.env.local scripts/check-database.js",
     "worker": "node --env-file-if-exists=.env.local scripts/worker.js",
     "scale": "node --env-file-if-exists=.env.local scripts/scale.js",
-    "bench": "node scripts/bench.js"
+    "bench": "node scripts/bench.js",
+    "recover:live": "node --env-file-if-exists=.env.local scripts/recovery-drill.js --live"
   },
   "dependencies": {
     "@vercel/queue": "0.11.0",

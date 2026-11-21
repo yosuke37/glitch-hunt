@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS gh_attempts (
   error text
 );
 CREATE INDEX IF NOT EXISTS gh_jobs_ready ON gh_jobs (available_at) WHERE status = 'queued';
+ALTER TABLE gh_jobs ADD COLUMN IF NOT EXISTS public_id uuid UNIQUE;
 ALTER TABLE gh_jobs ADD COLUMN IF NOT EXISTS failure_count integer NOT NULL DEFAULT 0;
 ALTER TABLE gh_jobs ADD COLUMN IF NOT EXISTS budget_charged_on date;
 CREATE INDEX IF NOT EXISTS gh_attempts_active ON gh_attempts (lease_until) WHERE status = 'running';

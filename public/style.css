@@ -78,6 +78,20 @@ button:hover:not(:disabled) { border-color: var(--accent); }
 .job-actions { display: grid; gap: 8px; margin-top: 12px; }
 .demo-link { color: var(--muted); font-size: 13px; text-align: center; padding: 6px; }
 .demo-link:hover { color: var(--accent); }
+.read-only .controls { display: none; }
+.read-only .workspace { grid-template-columns: 1fr; }
+.read-only .intro { display: none; }
+.key { background: #e8bd57; color: #161b24; }
+.door { background: #95613f; }
+.door.open { background: #536551; }
+.story { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
+.story .panel { margin-bottom: 24px; }
+.story h1 { font-size: clamp(2rem, 5vw, 4rem); }
+.story p, .story li { line-height: 1.7; }
+.story a, .top a, #shared-info a { color: var(--accent); }
+.story video { width: 100%; border-radius: 8px; }
+.architecture-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 12px; }
+.architecture-grid article { border: 1px solid var(--line); padding: 16px; border-radius: 8px; }
 .trace-entry details { margin-top: 10px; color: var(--muted); font-size: 14px; }
 body { font-size: 16px; }
 label, .status, .finding { font-size: 14px; }
