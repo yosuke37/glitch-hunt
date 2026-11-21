@@ -375,7 +375,7 @@ async function loadBenchmark(file = "benchmark", prefix = "benchmark") {
     for (const cohort of report.cohorts) {
       const row = element("tr");
       for (const value of [
-        cohort.concurrency, `${cohort.completed}/${report.trialsPerCohort}`,
+        cohort.concurrency, cohort.peakLeasedAttempts ?? "—", `${cohort.completed}/${report.trialsPerCohort}`,
         (cohort.completedPerSecond ?? cohort.completed / cohort.durationSeconds).toFixed(3),
         cohort.truePositives, `${cohort.falseNegatives} / ${cohort.falsePositives}`,
         cohort.p95CompletionMs == null ? "—" : `${(cohort.p95CompletionMs / 1000).toFixed(2)}s`,

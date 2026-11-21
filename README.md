@@ -71,6 +71,16 @@ The first local live scaling run on November 20 completed four trials before HTT
 
 The original hosted run completed 12/20 trials at one slot, 7/20 at five slots, and 1/20 at twenty slots. It verified nine, six, and one planted regressions respectively. The [earlier report](public/benchmark-before-pacing.json) retains HTTP 429 errors, incomplete trials, and deadline cancellations.
 
+The November 21 semantic-landmark benchmark completed all 60 live trials. Every cohort made 40 model calls, found all 15 labelled regressions, and correctly classified five healthy trials. There were zero misses, false alarms, incomplete trials, or provider HTTP 429 responses.
+
+| Slots / peak leased attempts | Completed | Verified findings | Batch time | Estimated model cost |
+| --- | --- | --- | --- | --- |
+| 1 / 1 | 20/20 | 15 | 622.10 s | $0.01264 |
+| 5 / 5 | 20/20 | 15 | 607.30 s | $0.01054 |
+| 20 / 20 | 20/20 | 15 | 608.41 s | $0.01054 |
+
+Peak active jobs in the dashboard counts overlapping worker leases. Model requests follow the shared schedule. These results demonstrate completion under concurrency and recovery, while the current quota constrains throughput. Estimated model cost across the 60 trials was $0.03371, excluding hosting and queue charges. This run used a 1,200-second deadline and 15-second request spacing. The [intermediate checkpoint report](public/benchmark-after-checkpoints.json) retains the earlier 10/20, 13/20, and 9/20 results with a 600-second deadline and 7.5-second spacing. Both the tool interface and deadline changed between reports; this is an engineering progression rather than an isolated causal experiment.
+
 To measure the deployed service with the same workload, use `npm.cmd run scale -- --live --cloud`. This uses the operator token from the local configuration and submits through the production batch API. It needs no local database or worker.
 
 ## Deploy

@@ -9,6 +9,7 @@ INSERT INTO gh_control (id) VALUES (1) ON CONFLICT DO NOTHING;
 ALTER TABLE gh_control ADD COLUMN IF NOT EXISTS model_cooldown_until timestamptz NOT NULL DEFAULT now();
 ALTER TABLE gh_control ADD COLUMN IF NOT EXISTS model_next_call_at timestamptz NOT NULL DEFAULT now();
 ALTER TABLE gh_control ADD COLUMN IF NOT EXISTS model_interval_ms integer NOT NULL DEFAULT 15000 CHECK (model_interval_ms BETWEEN 0 AND 60000);
+ALTER TABLE gh_control ALTER COLUMN model_interval_ms SET DEFAULT 15000;
 CREATE TABLE IF NOT EXISTS gh_batches (
   id uuid PRIMARY KEY,
   request_key uuid NOT NULL UNIQUE,

@@ -178,12 +178,14 @@
       "costPerFindingUsd": 0,
       "usage": {
         "inputTokens": 0,
-        "outputTokens": 0
+        "outputTokens": 0,
+        "modelCalls": 0
       },
       "attempts": 25,
       "requestSpacingMs": 7500,
       "errors": [],
-      "cancelled": 0
+      "cancelled": 0,
+      "peakLeasedAttempts": 1
     },
     {
       "id": "56ed27e6-239f-44ce-84ce-12588c62d6e2",
@@ -203,12 +205,14 @@
       "costPerFindingUsd": 0,
       "usage": {
         "inputTokens": 0,
-        "outputTokens": 0
+        "outputTokens": 0,
+        "modelCalls": 0
       },
       "attempts": 25,
       "requestSpacingMs": 7500,
       "errors": [],
-      "cancelled": 0
+      "cancelled": 0,
+      "peakLeasedAttempts": 5
     },
     {
       "id": "461bc617-8df1-4965-8f0f-eb6b65e12a20",
@@ -228,12 +232,14 @@
       "costPerFindingUsd": 0,
       "usage": {
         "inputTokens": 0,
-        "outputTokens": 0
+        "outputTokens": 0,
+        "modelCalls": 0
       },
       "attempts": 25,
       "requestSpacingMs": 7500,
       "errors": [],
-      "cancelled": 0
+      "cancelled": 0,
+      "peakLeasedAttempts": 20
     }
   ],
   "notes": "Cohorts run sequentially and share provider limits and the application request schedule. Each cohort has a 600-second deadline. Completed trials exclude failed, cancelled, and unfinished runs. Misses include unfinished bug trials. Cost estimates can omit interrupted requests. Earlier results used a 180-second deadline."

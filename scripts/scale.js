@@ -33,6 +33,7 @@ const report = {
   measuredAt: new Date().toISOString(), mode, trialsPerCohort: inputs.length,
   cohortTimeoutSeconds: timeoutSeconds,
   workloadVersion: expanded ? "expanded-25" : "original-20",
+  agentInterface: mode === "live" ? "semantic-landmarks-v1" : "offline-bfs",
   workload: inputs, model: mode === "live" ? process.env.HUNT_MODEL : "offline-bfs",
   costBasis: "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
   environment: cloud ? "Neon PostgreSQL and Vercel Queues cloud workers. Model requests use Vercel AI Gateway."
@@ -73,7 +74,14 @@ try {
     const usage = batch.attempts.reduce((sum, attempt) => ({
       inputTokens: sum.inputTokens + (attempt.progress?.usage?.inputTokens ?? 0),
       outputTokens: sum.outputTokens + (attempt.progress?.usage?.outputTokens ?? 0),
-    }), { inputTokens: 0, outputTokens: 0 });
+      modelCalls: sum.modelCalls + (attempt.progress?.usage?.modelCalls ?? 0),
+    }), { inputTokens: 0, outputTokens: 0, modelCalls: 0 });
+    const events = batch.attempts.filter((attempt) => attempt.finished_at).flatMap((attempt) => [
+      { time: Date.parse(attempt.started_at), delta: 1 },
+      { time: Date.parse(attempt.finished_at), delta: -1 },
+    ]).sort((a, b) => a.time - b.time || a.delta - b.delta);
+    let leased = 0, peakLeasedAttempts = 0;
+    for (const event of events) peakLeasedAttempts = Math.max(peakLeasedAttempts, leased += event.delta);
     const costUsd = mode === "offline" ? 0 : report.model === "openai/gpt-4.1-mini"
       ? (usage.inputTokens * 0.4 + usage.outputTokens * 1.6) / 1_000_000 : null;
     const cohort = {
@@ -85,6 +93,7 @@ try {
       truePositives, falseNegatives, falsePositives, trueNegatives, incomplete,
       costUsd, costPerFindingUsd: costUsd === null || !truePositives ? null : costUsd / truePositives,
       usage, attempts: batch.attempts.length, batch,
+      peakLeasedAttempts,
       requestSpacingMs: batch.control.model_interval_ms,
       errors: batch.attempts.filter((attempt) => attempt.error).map((attempt) => attempt.error),
       cancelled: batch.jobs.filter((job) => job.status === "cancelled").length,
