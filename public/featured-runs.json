@@ -10,5 +10,13 @@
   {
     "label": "Healthy alternate route",
     "id": "024438cc-9be6-4c7d-9a10-1e2d35fd070e"
+  },
+  {
+    "label": "Key Management: healthy live run",
+    "id": "46580b57-3066-4da0-9188-9b990b0558af"
+  },
+  {
+    "label": "Key Management: broken key pickup",
+    "id": "f1104cac-44e3-4773-9d57-dceb88750d3e"
   }
 ]

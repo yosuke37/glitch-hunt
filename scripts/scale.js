@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import { enqueue, getBatch, cancel } from "../lib/queue.js";
 import { closeDatabase } from "../lib/db.js";
-import { scenarios, cases } from "../public/game.js";
+import { cases, gameVersion } from "../public/game.js";
 
 const mode = process.argv.includes("--live") ? "live" : "offline";
 const cloud = process.argv.includes("--cloud");
@@ -33,7 +33,8 @@ const report = {
   measuredAt: new Date().toISOString(), mode, trialsPerCohort: inputs.length,
   cohortTimeoutSeconds: timeoutSeconds,
   workloadVersion: expanded ? "expanded-25" : "original-20",
-  agentInterface: mode === "live" ? "semantic-landmarks-v1" : "offline-bfs",
+  gameVersion,
+  agentInterface: mode === "live" ? "semantic-landmarks-inventory-v2" : "offline-bfs",
   workload: inputs, model: mode === "live" ? process.env.HUNT_MODEL : "offline-bfs",
   costBasis: "Estimated uncached list rates for openai/gpt-4.1-mini: $0.40/M input, $1.60/M output. Check actual billed cost in Vercel.",
   environment: cloud ? "Neon PostgreSQL and Vercel Queues cloud workers. Model requests use Vercel AI Gateway."

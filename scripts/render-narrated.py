@@ -35,7 +35,7 @@ for i, scene in enumerate(scenes):
     title = FRAMES / f"narrated-title-{i}.txt"
     title.write_text(scene["title"], encoding="utf-8")
     video_filter = (
-        "scale=1920:1080:force_original_aspect_ratio=decrease:out_range=tv,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p,"
+        "scale=1920:998:force_original_aspect_ratio=decrease:out_range=tv,pad=1920:1080:(ow-iw)/2:82,setsar=1,format=yuv420p,"
         "drawbox=x=0:y=0:w=1920:h=82:color=black@0.94:t=fill,"
         f"drawtext=fontfile=output/video/caption-font.ttf:textfile=output/video/narrated-title-{i}.txt:fontcolor=white:fontsize=32:x=40:y=24"
     )

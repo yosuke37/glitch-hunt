@@ -55,6 +55,8 @@ function board(level, state, label, version) {
 function render() {
   const level = levels[selected?.levelId ?? levelId];
   const last = selected?.inputs.length ?? 0;
+  $("key-legend").hidden = !level.requiresKey;
+  $("door-legend").hidden = !level.requiresKey;
   $("boards").replaceChildren(
     board(level, selected?.baseline[frame] ?? start(level), "BASELINE", "v1.0"),
     board(level, selected?.candidate[frame] ?? start(level), "CANDIDATE", "v1.1"),
@@ -126,7 +128,7 @@ function renderTrace() {
   };
   $("trace-summary").textContent = [
     selected.model, `${selected.usage.modelCalls} model calls`,
-    `${(selected.elapsedMs / 1000).toFixed(2)}s`,
+    `${(selected.elapsedMs / 1000).toFixed(2)}s ${selected.partial ? "saved response time" : "last attempt"}`,
     endings[selected.stopReason] ?? "Run ended.",
   ].join(" · ");
   for (const entry of selected.trace ?? []) {

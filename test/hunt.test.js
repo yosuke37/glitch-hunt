@@ -53,7 +53,7 @@ test("a failed or incomplete trace does not establish a regression", () => {
   assert.equal(verify(levels[0], [], 0).verified, false);
 });
 
-test("three regressions and a healthy build have distinct verified outcomes on all levels", () => {
+test("the labelled case matrix distinguishes regressions and healthy builds on all levels", () => {
   for (const level of levels) {
     for (const scenario of scenarios) {
       const expected = cases.find((item) => item.levelId === levels.indexOf(level) && item.scenario === scenario.id).expectedRegression;
